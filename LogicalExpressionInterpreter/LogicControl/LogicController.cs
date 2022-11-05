@@ -27,12 +27,13 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 Console.WriteLine("Choose command from menu: ");
                 Console.WriteLine("1. Add Function");
-                Console.WriteLine("2. Print Added Functions");
-                Console.WriteLine("3. Solve Function");
-                Console.WriteLine("4. Create Truth Table");
-                Console.WriteLine("5. Load Truth Table");
-                Console.WriteLine("6. Find Logic Function In Table");
-                Console.WriteLine("7. Exit");
+                Console.WriteLine("2. Remove Function");
+                Console.WriteLine("3. Print Added Functions");
+                Console.WriteLine("4. Solve Function");
+                Console.WriteLine("5. Create Truth Table");
+                Console.WriteLine("6. Load Truth Table");
+                Console.WriteLine("7. Find Logic Function In Table");
+                Console.WriteLine("8. Exit");
 
                 string input = Console.ReadLine();
                 if (!int.TryParse(input, out _))
@@ -45,9 +46,10 @@ namespace LogicalExpressionInterpreter.LogicControl
                 switch (command)
                 {
                     case 1: AddFunction(); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
-                    case 2: PrintFunctions(); break;
-                    case 3: SolveFunction(); break;
-                    case 7: return;
+                    case 2: RemoveFunction(); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
+                    case 3: PrintFunctions(); break;
+                    case 4: SolveFunction(); break;
+                    case 8: return;
                 }
 
                 Console.WriteLine();
@@ -58,6 +60,15 @@ namespace LogicalExpressionInterpreter.LogicControl
         {
             Console.WriteLine("Enter new bool expression/function: ");
             userFunctions.Add(Console.ReadLine());
+        }
+
+        private static void RemoveFunction()
+        {
+            Console.WriteLine("Choose function to delete: ");
+            PrintFunctions();
+
+            int choice = int.Parse(Console.ReadLine()) - 1;
+            userFunctions.RemoveAt(choice);
         }
 
         public static void PrintFunctions()
