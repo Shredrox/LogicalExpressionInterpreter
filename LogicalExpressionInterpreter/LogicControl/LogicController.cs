@@ -89,10 +89,37 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void SolveFunction()
         {
+            if(userFunctions.Count == 0)
+            {
+                Console.WriteLine("No added functions to solve. Add functions and try again.");
+                return;
+            }
+
             Console.WriteLine("Choose function to solve: ");
             PrintFunctions();
 
-            int choice = int.Parse(Console.ReadLine()) - 1;
+            string input = Console.ReadLine();
+            if (!int.TryParse(input, out _))
+            {
+                while (!int.TryParse(input, out _))
+                {
+                    Console.WriteLine("Invalid input! Try again.");
+                    PrintFunctions();
+                    input = Console.ReadLine();
+                }
+            }
+
+            if (int.Parse(input) < 1 || int.Parse(input) > userFunctions.Count)
+            {
+                while (int.Parse(input) < 1 || int.Parse(input) > userFunctions.Count)
+                {
+                    Console.WriteLine("Invalid input! Try again.");
+                    PrintFunctions();
+                    input = Console.ReadLine();
+                }
+            }
+
+            int choice = int.Parse(input) - 1;
 
             Console.WriteLine("Enter bool values: ");
             string values = Console.ReadLine();
