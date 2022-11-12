@@ -6,7 +6,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class LogicController
     {
-        private static DynamicArray<string> userFunctions = new();
+        private static DynamicArray<LogicFunction> userFunctions = new();
 
         public static void Run()
         {
@@ -16,12 +16,14 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             //string input1 = "(((( a || b ) && c ) || ( d && p ) ) && e ) && ( f || g )";
-            //string e = "(a && b) || (c && ((d || e) && f))";
+            string e = "(a && b) || (c && ((d || e) && f))";
             //string e2 = "a && ( !( b || c ) || d ) && e";
             //string e3 = "aaa";
             //userFunctions.Add(input1);
             //userFunctions.Add(e);
             //userFunctions.Add(e2);
+
+            var test = new LogicFunction(e);
 
             while (true)
             {
@@ -30,7 +32,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 Console.WriteLine("2. Remove Function");
                 Console.WriteLine("3. Print Added Functions");
                 Console.WriteLine("4. Solve Function");
-                Console.WriteLine("5. Create Truth Table");
+                Console.WriteLine("5. Create Truth Table From Function");
                 Console.WriteLine("6. Load Truth Table");
                 Console.WriteLine("7. Find Logic Function In Table");
                 Console.WriteLine("8. Exit");
@@ -59,7 +61,7 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void AddFunction()
         {
             Console.WriteLine("Enter new bool expression/function: ");
-            userFunctions.Add(Console.ReadLine());
+            userFunctions.Add(new LogicFunction(Console.ReadLine()));
         }
 
         private static void RemoveFunction()
@@ -86,6 +88,11 @@ namespace LogicalExpressionInterpreter.LogicControl
                 Console.WriteLine(i + 1 + ": " + userFunctions[i]);
             }
         }
+
+        //public static int ChooseFunction()
+        //{
+
+        //}
 
         public static void SolveFunction()
         {
@@ -125,13 +132,18 @@ namespace LogicalExpressionInterpreter.LogicControl
             string values = Console.ReadLine();
             string[] boolInput = Utility.Split(values, ' ');
 
-            var tokens = Tokenizer.Tokenize(userFunctions[choice]);
+            var tokens = Tokenizer.Tokenize(userFunctions[choice].GetExpression());
             var postfixTokens = Parser.ConvertToPostfix(tokens);
 
             Node root = Tree.CreateTree(postfixTokens, boolInput);
 
             Console.WriteLine("Result: " + Tree.Evaluate(root));
             Console.WriteLine();
+        }
+
+        public static void CreateTable()
+        {
+
         }
     }
 }

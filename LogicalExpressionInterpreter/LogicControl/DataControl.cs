@@ -4,18 +4,18 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class DataControl
     {
-        public static void SaveToFile(DynamicArray<string> userFunctions, string path)
+        public static void SaveToFile(DynamicArray<LogicFunction> userFunctions, string path)
         {
             using (StreamWriter sw = File.CreateText(path))
             {
                 for (int i = 0; i < userFunctions.Count; i++)
                 {
-                    sw.WriteLine(userFunctions[i]);
+                    sw.WriteLine(userFunctions[i].GetExpression());
                 }
             }
         }
 
-        public static DynamicArray<string>? LoadFromFile(string path)
+        public static DynamicArray<LogicFunction>? LoadFromFile(string path)
         {
             if (!File.Exists(path))
             {
@@ -23,11 +23,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             string[] fileLines = File.ReadAllLines(path);
-            DynamicArray<string> loadedFunctions = new();
+            DynamicArray<LogicFunction> loadedFunctions = new();
 
             for (int i = 0; i < fileLines.Length; i++)
             {
-                loadedFunctions.Add(fileLines[i]);
+                loadedFunctions.Add(new LogicFunction(fileLines[i]));
             }
 
             return loadedFunctions;
