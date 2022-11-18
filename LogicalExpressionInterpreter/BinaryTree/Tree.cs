@@ -58,20 +58,22 @@ namespace LogicalExpressionInterpreter.BinaryTree
 
             for (int i = 0; i < tokens.Count; i++)
             {
-                if (tokens[i].Type == Token.TokenType.LITERAL)
+                switch (tokens[i].Type)
                 {
-                    nodes.Push(new Node(tokens[i].Value));
-                }
-                else if (tokens[i].Type == Token.TokenType.NOT)
-                {
-                    Node left = nodes.Pop();
-                    nodes.Push(new Node(tokens[i].Value, left));
-                }
-                else
-                {
-                    Node left = nodes.Pop();
-                    Node right = nodes.Pop();
-                    nodes.Push(new Node(tokens[i].Value, left, right));
+                    case Token.TokenType.LITERAL: nodes.Push(new Node(tokens[i].Value)); break;
+                    case Token.TokenType.NOT:
+                        {
+                            Node left = nodes.Pop();
+                            nodes.Push(new Node(tokens[i].Value, left));
+                            break;
+                        }
+                    default:
+                        {
+                            Node left = nodes.Pop();
+                            Node right = nodes.Pop();
+                            nodes.Push(new Node(tokens[i].Value, left, right));
+                            break;
+                        }
                 }
             }
 

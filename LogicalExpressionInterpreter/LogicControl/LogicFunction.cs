@@ -43,6 +43,5 @@ namespace LogicalExpressionInterpreter.LogicControl
         {
             return Operands;
         }
-
     }
 }

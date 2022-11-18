@@ -51,6 +51,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case 2: RemoveFunction(); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
                     case 3: PrintFunctions(); break;
                     case 4: SolveFunction(); break;
+                    case 5: CreateTable(); break;
                     case 8: return;
                 }
 
@@ -99,29 +100,24 @@ namespace LogicalExpressionInterpreter.LogicControl
             Console.WriteLine("Choose function: ");
             PrintFunctions();
 
-            string input = Console.ReadLine();
-            bool validInput = false;
-            while (!validInput)
+            int input;
+            bool valid = false;
+
+            while (!valid) 
             {
-                if(!int.TryParse(input, out _))
+                valid = int.TryParse(Console.ReadLine(), out input);
+
+                if(valid && (input >= 1 && input <= userFunctions.Count))
                 {
-                    Console.WriteLine("Invalid input! Try again.");
-                    PrintFunctions();
-                    input = Console.ReadLine();
+                    return userFunctions[input - 1];
                 }
-                else if (int.Parse(input) < 1 || int.Parse(input) > userFunctions.Count)
-                {
-                    Console.WriteLine("Invalid input! Try again.");
-                    PrintFunctions();
-                    input = Console.ReadLine();
-                }
-                else
-                {
-                    validInput = true;
-                }
+
+                Console.WriteLine("Invalid input! Try again.");
+                PrintFunctions();
+                valid = false;                
             }
 
-            return userFunctions[int.Parse(input) - 1];
+            return null;
         }
 
         public static void SolveFunction()
@@ -149,6 +145,12 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void CreateTable()
         {
             var chosenFunction = ChooseFunction();
+
+            for (int i = 0; i < chosenFunction.GetOperands().Count; i++)
+            {
+                Console.Write(chosenFunction.GetOperands()[i] + " " + "|" + " ");
+            }
+            Console.Write("Result");
         }
     }
 }
