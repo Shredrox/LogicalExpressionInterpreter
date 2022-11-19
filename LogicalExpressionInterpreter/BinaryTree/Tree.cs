@@ -54,7 +54,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
         {
             FillTree(tokens, boolValues);
 
-            ObjectStack<Node> nodes = new ObjectStack<Node>();
+            ObjectStack<Node> nodes = new();
 
             for (int i = 0; i < tokens.Count; i++)
             {

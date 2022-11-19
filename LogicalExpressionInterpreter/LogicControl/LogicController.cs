@@ -16,14 +16,15 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             //string input1 = "(((( a || b ) && c ) || ( d && p ) ) && e ) && ( f || g )";
-            string e = "(a && b) || (c && ((d || e) && f))";
+            //string e = "(a && b) || (c && ((d || e) && f))";
             //string e2 = "a && ( !( b || c ) || d ) && e";
-            //string e3 = "aaa";
+            string e3 = "a || ((b || c) && d)";
             //userFunctions.Add(input1);
             //userFunctions.Add(e);
             //userFunctions.Add(e2);
 
-            var test = new LogicFunction(e);
+            var test = new LogicFunction(e3);
+            userFunctions.Add(test);
 
             while (true)
             {
@@ -107,7 +108,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 valid = int.TryParse(Console.ReadLine(), out input);
 
-                if(valid && (input >= 1 && input <= userFunctions.Count))
+                if(valid && input >= 1 && input <= userFunctions.Count)
                 {
                     return userFunctions[input - 1];
                 }
@@ -148,9 +149,65 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             for (int i = 0; i < chosenFunction.GetOperands().Count; i++)
             {
-                Console.Write(chosenFunction.GetOperands()[i] + " " + "|" + " ");
+                Console.Write(chosenFunction.GetOperands()[i] + "  " + "|" + "  ");
             }
-            Console.Write("Result");
+            Console.Write("Result" + " (" + chosenFunction.GetExpression() + ")");
+            Console.WriteLine();
+
+            string[,] combination = new string[chosenFunction.GetOperands().Count + 1, Convert.ToInt32(Math.Pow(2, Convert.ToDouble(chosenFunction.GetOperands().Count)))];
+            string state = "True";
+
+            int variationCount = Convert.ToInt32(Math.Pow(2, Convert.ToDouble(chosenFunction.GetOperands().Count)) / 2);
+            int repeatCount = 0;
+
+            for (int col = 0; col < combination.GetLength(0)-1; col++)
+            {
+                for (int row = 0; row < combination.GetLength(1); row++)
+                {
+                    if(repeatCount == variationCount)
+                    {
+                        if(state == "True")
+                        {
+                            state = "False";
+                        }
+                        else
+                        {
+                            state = "True";
+                        }
+
+                        repeatCount = 0;
+                    }
+                    combination[col, row] = state;
+                    repeatCount++;
+                }
+                variationCount /= 2;
+                repeatCount = 0;
+                state = "True";
+            }
+
+            string boolValues = "";
+            for (int row = 0; row < combination.GetLength(1); row++)
+            {
+                for (int col = 0; col < combination.GetLength(0) - 1; col++)
+                {
+                    boolValues += combination[col, row] + " ";
+                }
+                var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
+                var postfixTokens = Parser.ConvertToPostfix(tokens);
+
+                Node root = Tree.CreateTree(postfixTokens, Utility.Split(boolValues, ' '));
+                combination[combination.GetLength(0) - 1, row] = Tree.Evaluate(root).ToString();
+                boolValues = "";
+            }
+
+            for (int row = 0; row < combination.GetLength(1); row++)
+            {
+                for (int col = 0; col < combination.GetLength(0); col++)
+                {
+                    Console.Write(combination[col, row] + "  ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }
