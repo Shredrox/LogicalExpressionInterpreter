@@ -146,24 +146,9 @@ namespace LogicalExpressionInterpreter.LogicControl
         {
             var chosenFunction = ChooseFunction();
 
-            for (int i = 0; i < chosenFunction.GetOperands().Count; i++)
-            {
-                Console.Write(chosenFunction.GetOperands()[i] + "  " + "|" + "  ");
-            }
-            Console.Write("Result" + " (" + chosenFunction.GetExpression() + ")");
-            Console.WriteLine();
-
             if (chosenFunction.GetTruthTable() != null)
             {
-                for (int row = 0; row < chosenFunction.GetTruthTable().GetLength(1); row++)
-                {
-                    for (int col = 0; col < chosenFunction.GetTruthTable().GetLength(0); col++)
-                    {
-                        Console.Write(chosenFunction.GetTruthTable()[col, row] + "  ");
-                    }
-                    Console.WriteLine();
-                }
-
+                PrintTruthTable(chosenFunction);
                 return;
             }
 
@@ -211,12 +196,23 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             chosenFunction.SetTruthTable(combination);
+            PrintTruthTable(chosenFunction);
+        }
 
-            for (int row = 0; row < combination.GetLength(1); row++)
+        public static void PrintTruthTable(LogicFunction logicFunction)
+        {
+            for (int i = 0; i < logicFunction.GetOperands().Count; i++)
             {
-                for (int col = 0; col < combination.GetLength(0); col++)
+                Console.Write(logicFunction.GetOperands()[i] + "  " + "|" + "  ");
+            }
+            Console.Write("Result" + " (" + logicFunction.GetExpression() + ")");
+            Console.WriteLine();
+
+            for (int row = 0; row < logicFunction.GetTruthTable().GetLength(1); row++)
+            {
+                for (int col = 0; col < logicFunction.GetTruthTable().GetLength(0); col++)
                 {
-                    Console.Write(combination[col, row] + "  ");
+                    Console.Write(logicFunction.GetTruthTable()[col, row] + "  ");
                 }
                 Console.WriteLine();
             }
