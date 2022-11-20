@@ -152,10 +152,10 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return;
             }
 
-            string[,] combination = new string[chosenFunction.GetOperands().Count + 1, Convert.ToInt32(Math.Pow(2, Convert.ToDouble(chosenFunction.GetOperands().Count)))];
+            string[,] combination = new string[chosenFunction.GetOperands().Count + 1, Utility.IntPower(2, chosenFunction.GetOperands().Count)];
             string state = "True";
 
-            int variationCount = Convert.ToInt32(Math.Pow(2, Convert.ToDouble(chosenFunction.GetOperands().Count)) / 2);
+            int variationCount = Utility.IntPower(2, chosenFunction.GetOperands().Count) / 2;
             int repeatCount = 0;
 
             for (int col = 0; col < combination.GetLength(0)-1; col++)

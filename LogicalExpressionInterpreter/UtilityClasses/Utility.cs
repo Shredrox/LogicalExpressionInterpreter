@@ -51,5 +51,16 @@
 
             return counter;
         }
+
+        public static int IntPower(int baseNum, int power)
+        {
+            int result = baseNum;
+            for (int i = 1; i < power; i++)
+            {
+                result *= baseNum;
+            }
+
+            return result;
+        }
     }
 }
