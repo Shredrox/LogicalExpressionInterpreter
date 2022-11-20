@@ -36,7 +36,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
             return false;
         }
 
-        private static void FillTree(DynamicArray<Token> tokens, string[] boolValues)
+        private static void FillTree(List<Token> tokens, string[] boolValues)
         {
             int index = 0;
 
@@ -50,7 +50,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
             }
         }
 
-        public static Node CreateTree(DynamicArray<Token> tokens, string[] boolValues)
+        public static Node CreateTree(List<Token> tokens, string[] boolValues)
         {
             FillTree(tokens, boolValues);
 

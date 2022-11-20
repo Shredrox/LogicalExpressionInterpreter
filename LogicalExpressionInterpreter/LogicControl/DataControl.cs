@@ -4,7 +4,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class DataControl
     {
-        public static void SaveToFile(DynamicArray<LogicFunction> userFunctions, string path)
+        public static void SaveToFile(List<LogicFunction> userFunctions, string path)
         {
             using (StreamWriter sw = File.CreateText(path))
             {
@@ -15,7 +15,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static DynamicArray<LogicFunction>? LoadFromFile(string path)
+        public static List<LogicFunction>? LoadFromFile(string path)
         {
             if (!File.Exists(path))
             {
@@ -23,7 +23,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             string[] fileLines = File.ReadAllLines(path);
-            DynamicArray<LogicFunction> loadedFunctions = new();
+            List<LogicFunction> loadedFunctions = new();
 
             for (int i = 0; i < fileLines.Length; i++)
             {

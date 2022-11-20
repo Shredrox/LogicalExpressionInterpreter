@@ -6,7 +6,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class LogicController
     {
-        private static DynamicArray<LogicFunction> userFunctions = new();
+        private static List<LogicFunction> userFunctions = new();
 
         public static void Run()
         {
@@ -34,9 +34,8 @@ namespace LogicalExpressionInterpreter.LogicControl
                 Console.WriteLine("3. Print Added Functions");
                 Console.WriteLine("4. Solve Function");
                 Console.WriteLine("5. Create Truth Table From Function");
-                Console.WriteLine("6. Load Truth Table");
-                Console.WriteLine("7. Find Logic Function In Table");
-                Console.WriteLine("8. Exit");
+                Console.WriteLine("6. Find Logic Function In Table");
+                Console.WriteLine("7. Exit");
 
                 string input = Console.ReadLine();
                 if (!int.TryParse(input, out _))
@@ -53,7 +52,8 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case 3: PrintFunctions(); break;
                     case 4: SolveFunction(); break;
                     case 5: CreateTable(); break;
-                    case 8: return;
+                    case 6: FindFunctionFromTruthTable(); break;
+                    case 7: return;
                 }
 
                 Console.WriteLine();
@@ -217,5 +217,27 @@ namespace LogicalExpressionInterpreter.LogicControl
                 Console.WriteLine();
             }
         }
+
+        public static LogicFunction FindFunctionFromTruthTable()
+        {
+            var searchedFunction = new LogicFunction("aa");
+
+            //string s = "1";
+            //DynamicArray<string> list = new DynamicArray<string>();
+            //while (s != "" && s != " ")
+            //{
+            //    s = Console.ReadLine();
+            //    list.Add(s);
+            //}
+
+            //string[,] inputTableValues = new string[1, 1];
+
+            //for (int i = 0; i < userFunctions.Count; i++)
+            //{
+
+            //}
+
+            return searchedFunction;
+        } 
     }
 }

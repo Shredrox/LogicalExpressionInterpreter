@@ -2,11 +2,11 @@
 {
     public class ObjectStack<T>
     {
-        private DynamicArray<T> container;
+        private List<T> container;
 
         public ObjectStack()
         {
-            container = new DynamicArray<T>();
+            container = new List<T>();
         }
 
         public void Push(T value)

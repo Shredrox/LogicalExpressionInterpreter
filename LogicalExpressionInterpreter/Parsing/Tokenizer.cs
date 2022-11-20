@@ -4,9 +4,9 @@ namespace LogicalExpressionInterpreter.Parsing
 {
     public static class Tokenizer
     {
-        public static DynamicArray<Token> Tokenize(string input)
+        public static List<Token> Tokenize(string input)
         {
-            DynamicArray<Token> tokens = new();
+            List<Token> tokens = new();
 
             for (int i = 0; i < input.Length; i++)
             {

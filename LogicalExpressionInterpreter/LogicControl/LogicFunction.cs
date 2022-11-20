@@ -6,16 +6,16 @@ namespace LogicalExpressionInterpreter.LogicControl
     public class LogicFunction
     {
         private string Expression = "";
-        private DynamicArray<Token> Tokens;
-        private DynamicArray<string> Operands;
+        private List<Token> Tokens;
+        private List<string> Operands;
         private string[,] TruthTable;
 
         public LogicFunction(string expression)
         {
             Expression = expression;
-            Tokens = new DynamicArray<Token>();
+            Tokens = new List<Token>();
             Tokens = Tokenizer.Tokenize(expression);
-            Operands = new DynamicArray<string>();
+            Operands = new List<string>();
             SetOperandsFromExpression();
         }
 
@@ -35,12 +35,12 @@ namespace LogicalExpressionInterpreter.LogicControl
             return Expression;
         }
 
-        public DynamicArray<Token> GetTokens()
+        public List<Token> GetTokens()
         {
             return Tokens;
         }
 
-        public DynamicArray<string> GetOperands()
+        public List<string> GetOperands()
         {
             return Operands;
         }

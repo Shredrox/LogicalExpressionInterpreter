@@ -16,10 +16,10 @@ namespace LogicalExpressionInterpreter.Parsing
             return 0;
         }
 
-        public static DynamicArray<Token>? ConvertToPostfix(DynamicArray<Token> tokens)
+        public static List<Token>? ConvertToPostfix(List<Token> tokens)
         {
             ObjectStack<Token> stack = new();
-            DynamicArray<Token> postfixExpression = new();
+            List<Token> postfixExpression = new();
 
             for (int i = 0; i < tokens.Count; i++)
             {
