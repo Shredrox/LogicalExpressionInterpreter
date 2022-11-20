@@ -10,7 +10,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 for (int i = 0; i < userFunctions.Count; i++)
                 {
-                    sw.WriteLine(userFunctions[i].GetExpression());
+                    sw.WriteLine(userFunctions[i].GetName() + ":" + userFunctions[i].GetExpression());
                 }
             }
         }
@@ -27,7 +27,8 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             for (int i = 0; i < fileLines.Length; i++)
             {
-                loadedFunctions.Add(new LogicFunction(fileLines[i]));
+                string[] values = Utility.Split(fileLines[i], ':');
+                loadedFunctions.Add(new LogicFunction(values[0], values[1]));
             }
 
             return loadedFunctions;

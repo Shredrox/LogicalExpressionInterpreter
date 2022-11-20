@@ -19,13 +19,13 @@ namespace LogicalExpressionInterpreter.LogicControl
             //string e = "(a && b) || (c && ((d || e) && f))";
             //string e2 = "a && ( !( b || c ) || d ) && e";
             //string e3 = "a || ((b || c) && d)";
-            string e3 = "a && b";
+            //string e3 = "a && b";
             //userFunctions.Add(input1);
             //userFunctions.Add(e);
             //userFunctions.Add(e2);
 
-            var test = new LogicFunction(e3);
-            userFunctions.Add(test);
+            //var test = new LogicFunction(e3);
+            //userFunctions.Add(test);
 
             while (true)
             {
@@ -63,8 +63,49 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void AddFunction()
         {
-            Console.WriteLine("Enter new bool expression/function: ");
-            userFunctions.Add(new LogicFunction(Console.ReadLine()));
+            Console.WriteLine("Choose option:");
+            Console.WriteLine("1. Add new function");
+            Console.WriteLine("2. Include existing function in new function.");
+
+            bool valid = false;
+            int input = 0;
+
+            while (!valid)
+            {
+                valid = int.TryParse(Console.ReadLine(), out input);
+
+                if (valid && (input == 1 || input == 2))
+                {
+                    break;
+                }
+
+                Console.WriteLine("Invalid input! Try again.");
+                valid = false;
+            }
+
+            switch (input)
+            {
+                case 1:
+                    {
+                        Console.WriteLine("Enter function name: ");
+                        string name = Console.ReadLine();
+                        Console.WriteLine("Enter new bool expression/function: ");
+                        string expression = Console.ReadLine(); 
+                        userFunctions.Add(new LogicFunction(name, expression));
+                        break;
+                    }
+                case 2:
+                    {
+                        var chosenFunction = ChooseFunction();
+                        Console.WriteLine("Enter function name: ");
+                        string name = Console.ReadLine();
+                        Console.WriteLine("Enter new bool expression/function: ");
+                        string expression = Console.ReadLine();
+                        Console.Write(chosenFunction.GetExpression() + " ");
+                        userFunctions.Add(new LogicFunction(name, chosenFunction.GetExpression() + expression));
+                        break;
+                    }
+            }
         }
 
         private static void RemoveFunction()
@@ -88,7 +129,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             for (int i = 0; i < userFunctions.Count; i++)
             {
-                Console.WriteLine(i + 1 + ": " + userFunctions[i].GetExpression());
+                Console.WriteLine(i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression());
             }
         }
 

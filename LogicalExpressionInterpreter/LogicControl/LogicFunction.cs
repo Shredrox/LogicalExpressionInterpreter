@@ -1,17 +1,20 @@
 ﻿using LogicalExpressionInterpreter.Parsing;
-using LogicalExpressionInterpreter.UtilityClasses;
 
 namespace LogicalExpressionInterpreter.LogicControl
 {
     public class LogicFunction
     {
+        private string Name = "";
+        private readonly Guid ID = Guid.NewGuid();
         private string Expression = "";
         private List<Token> Tokens;
         private List<string> Operands;
         private string[,] TruthTable;
+        private List<LogicFunction> ChildFunctions;
 
-        public LogicFunction(string expression)
+        public LogicFunction(string name, string expression)
         {
+            Name = name;
             Expression = expression;
             Tokens = new List<Token>();
             Tokens = Tokenizer.Tokenize(expression);
@@ -53,6 +56,16 @@ namespace LogicalExpressionInterpreter.LogicControl
         public string[,] GetTruthTable()
         {
             return TruthTable;
+        }
+
+        public void AddChildFunction(LogicFunction function)
+        {
+            ChildFunctions.Add(function);
+        }
+
+        public string GetName()
+        {
+            return Name;
         }
     }
 }
