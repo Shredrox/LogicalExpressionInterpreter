@@ -219,8 +219,62 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static LogicFunction FindFunctionFromTruthTable()
+        public static void FindFunctionFromTruthTable()
         {
+            Console.WriteLine("Choose option:");
+            Console.WriteLine("1. From File (.csv)");
+            Console.WriteLine("2. From Input");
+
+            bool valid = false;
+            int input = 0;
+
+            while (!valid)
+            {
+                valid = int.TryParse(Console.ReadLine(), out input);
+
+                if (valid && (input == 1 || input == 2))
+                {
+                    break;
+                }
+
+                Console.WriteLine("Invalid input! Try again.");
+                valid = false;
+            }
+
+            switch (input)
+            {
+                case 1: GetTruthTableFile(); break;
+                case 2: GetTruthTableInput(); break;
+            }
+        }
+
+        public static void GetTruthTableFile()
+        {
+            Console.WriteLine("Enter file path: ");
+            string path = Console.ReadLine();
+            if(!File.Exists(path))
+            {
+                Console.WriteLine("File doesn't exist.");
+                return;
+            }
+
+            List<string> input = new();
+
+            using (var reader = new StreamReader(path))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    input.Add(line);
+                }
+            }
+
+            SearchForFunction(input, ',');
+        }
+
+        public static void GetTruthTableInput()
+        {
+            Console.WriteLine("Enter Truth Table: ");
             string line = "1";
             List<string> input = new();
             while (line != "" && line != " ")
@@ -233,7 +287,12 @@ namespace LogicalExpressionInterpreter.LogicControl
                 input.Add(line);
             }
 
-            string[,] inputTableValues = new string[Utility.SplitSize(input[0], ' '), input.Count];
+            SearchForFunction(input, ' ');
+        }
+
+        public static LogicFunction? SearchForFunction(List<string> input, char inputSeparator)
+        {
+            string[,] inputTableValues = new string[Utility.SplitSize(input[0], inputSeparator), input.Count];
             int rowCounter = 0;
 
             for (int i = 0; i < input.Count; i++)
@@ -242,7 +301,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {
                     continue;
                 }
-                string[] splitLine = Utility.Split(input[i], ' ');
+                string[] splitLine = Utility.Split(input[i], inputSeparator);
 
                 for (int col = 0; col < inputTableValues.GetLength(0); col++)
                 {
@@ -259,7 +318,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {
                     continue;
                 }
-                else if (userFunctions[i].GetTruthTable().GetLength(1) != inputTableValues.GetLength(1) 
+                else if (userFunctions[i].GetTruthTable().GetLength(1) != inputTableValues.GetLength(1)
                     || userFunctions[i].GetTruthTable().GetLength(0) != inputTableValues.GetLength(0))
                 {
                     continue;
@@ -283,7 +342,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 if (tableMatch)
                 {
-                    Console.WriteLine("Function Found: " + userFunctions[i].GetExpression());
+                    Console.WriteLine("Found Function: " + userFunctions[i].GetExpression());
                     return userFunctions[i];
                 }
             }
@@ -291,6 +350,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             Console.WriteLine("No functions with this Truth Table were found.");
 
             return null;
-        } 
+        }
     }
 }
