@@ -8,6 +8,7 @@ namespace LogicalExpressionInterpreter.LogicControl
         private string Expression = "";
         private DynamicArray<Token> Tokens;
         private DynamicArray<string> Operands;
+        private string[,] TruthTable;
 
         public LogicFunction(string expression)
         {
@@ -42,6 +43,16 @@ namespace LogicalExpressionInterpreter.LogicControl
         public DynamicArray<string> GetOperands()
         {
             return Operands;
+        }
+
+        public void SetTruthTable(string[,] truthTable)
+        {
+            TruthTable = truthTable;
+        }
+
+        public string[,] GetTruthTable()
+        {
+            return TruthTable;
         }
     }
 }

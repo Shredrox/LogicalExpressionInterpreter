@@ -101,12 +101,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             Console.WriteLine("Choose function: ");
             PrintFunctions();
 
-            int input;
             bool valid = false;
 
             while (!valid) 
             {
-                valid = int.TryParse(Console.ReadLine(), out input);
+                valid = int.TryParse(Console.ReadLine(), out int input);
 
                 if(valid && input >= 1 && input <= userFunctions.Count)
                 {
@@ -154,6 +153,20 @@ namespace LogicalExpressionInterpreter.LogicControl
             Console.Write("Result" + " (" + chosenFunction.GetExpression() + ")");
             Console.WriteLine();
 
+            if (chosenFunction.GetTruthTable() != null)
+            {
+                for (int row = 0; row < chosenFunction.GetTruthTable().GetLength(1); row++)
+                {
+                    for (int col = 0; col < chosenFunction.GetTruthTable().GetLength(0); col++)
+                    {
+                        Console.Write(chosenFunction.GetTruthTable()[col, row] + "  ");
+                    }
+                    Console.WriteLine();
+                }
+
+                return;
+            }
+
             string[,] combination = new string[chosenFunction.GetOperands().Count + 1, Convert.ToInt32(Math.Pow(2, Convert.ToDouble(chosenFunction.GetOperands().Count)))];
             string state = "True";
 
@@ -166,13 +179,10 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {
                     if(repeatCount == variationCount)
                     {
-                        if(state == "True")
+                        switch (state)
                         {
-                            state = "False";
-                        }
-                        else
-                        {
-                            state = "True";
+                            case "True": state = "False"; break;
+                            case "False": state = "True"; break;
                         }
 
                         repeatCount = 0;
@@ -199,6 +209,8 @@ namespace LogicalExpressionInterpreter.LogicControl
                 combination[combination.GetLength(0) - 1, row] = Tree.Evaluate(root).ToString();
                 boolValues = "";
             }
+
+            chosenFunction.SetTruthTable(combination);
 
             for (int row = 0; row < combination.GetLength(1); row++)
             {
