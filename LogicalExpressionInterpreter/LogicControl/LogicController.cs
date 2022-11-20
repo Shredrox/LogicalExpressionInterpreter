@@ -18,7 +18,8 @@ namespace LogicalExpressionInterpreter.LogicControl
             //string input1 = "(((( a || b ) && c ) || ( d && p ) ) && e ) && ( f || g )";
             //string e = "(a && b) || (c && ((d || e) && f))";
             //string e2 = "a && ( !( b || c ) || d ) && e";
-            string e3 = "a || ((b || c) && d)";
+            //string e3 = "a || ((b || c) && d)";
+            string e3 = "a && b";
             //userFunctions.Add(input1);
             //userFunctions.Add(e);
             //userFunctions.Add(e2);
@@ -220,24 +221,76 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static LogicFunction FindFunctionFromTruthTable()
         {
-            var searchedFunction = new LogicFunction("aa");
+            string line = "1";
+            List<string> input = new();
+            while (line != "" && line != " ")
+            {
+                line = Console.ReadLine();
+                if (line == "" || line == " ")
+                {
+                    continue;
+                }
+                input.Add(line);
+            }
 
-            //string s = "1";
-            //DynamicArray<string> list = new DynamicArray<string>();
-            //while (s != "" && s != " ")
-            //{
-            //    s = Console.ReadLine();
-            //    list.Add(s);
-            //}
+            string[,] inputTableValues = new string[Utility.SplitSize(input[0], ' '), input.Count];
+            int rowCounter = 0;
 
-            //string[,] inputTableValues = new string[1, 1];
+            for (int i = 0; i < input.Count; i++)
+            {
+                if (input[i] == "" || input[i] == " ")
+                {
+                    continue;
+                }
+                string[] splitLine = Utility.Split(input[i], ' ');
 
-            //for (int i = 0; i < userFunctions.Count; i++)
-            //{
+                for (int col = 0; col < inputTableValues.GetLength(0); col++)
+                {
+                    inputTableValues[col, rowCounter] = splitLine[col];
+                }
+                rowCounter++;
+            }
 
-            //}
+            bool tableMatch = true;
 
-            return searchedFunction;
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetTruthTable() == null)
+                {
+                    continue;
+                }
+                else if (userFunctions[i].GetTruthTable().GetLength(1) != inputTableValues.GetLength(1) 
+                    || userFunctions[i].GetTruthTable().GetLength(0) != inputTableValues.GetLength(0))
+                {
+                    continue;
+                }
+
+                for (int row = 0; row < userFunctions[i].GetTruthTable().GetLength(1); row++)
+                {
+                    if (!tableMatch)
+                    {
+                        break;
+                    }
+
+                    for (int col = 0; col < userFunctions[i].GetTruthTable().GetLength(0); col++)
+                    {
+                        if (userFunctions[i].GetTruthTable()[col, row] != inputTableValues[col, row])
+                        {
+                            tableMatch = false;
+                        }
+                    }
+                }
+
+                if (tableMatch)
+                {
+                    Console.WriteLine("Function Found: " + userFunctions[i].GetExpression());
+                    return userFunctions[i];
+                }
+            }
+
+            Console.WriteLine("No functions with this Truth Table were found.");
+
+            return null;
         } 
     }
 }
