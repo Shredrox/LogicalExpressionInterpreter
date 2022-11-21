@@ -5,12 +5,12 @@ namespace LogicalExpressionInterpreter.LogicControl
     public class LogicFunction
     {
         private string Name = "";
-        private readonly Guid ID = Guid.NewGuid();
+        private Guid ID = Guid.NewGuid();
         private string Expression = "";
         private List<Token> Tokens;
         private List<string> Operands;
         private string[,] TruthTable;
-        private List<LogicFunction> ChildFunctions;
+        private List<LogicFunction> NestedFunctions;
 
         public LogicFunction(string name, string expression)
         {
@@ -19,6 +19,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             Tokens = new List<Token>();
             Tokens = Tokenizer.Tokenize(expression);
             Operands = new List<string>();
+            NestedFunctions= new List<LogicFunction>();
             SetOperandsFromExpression();
         }
 
@@ -58,14 +59,41 @@ namespace LogicalExpressionInterpreter.LogicControl
             return TruthTable;
         }
 
-        public void AddChildFunction(LogicFunction function)
+        public void AddNestedFunction(LogicFunction function)
         {
-            ChildFunctions.Add(function);
+            NestedFunctions.Add(function);
+        }
+
+        public List<LogicFunction> GetNestedFunctions()
+        {
+            return NestedFunctions;
+        }
+
+        public string GetNestedFunctionsNames()
+        {
+            string names = "";
+
+            for (int i = 0; i < NestedFunctions.Count; i++)
+            {
+                names += NestedFunctions[i].Name + " ";
+            }
+
+            return names;
         }
 
         public string GetName()
         {
             return Name;
+        }
+
+        public Guid GetID()
+        {
+            return ID;
+        }
+
+        public void SetID(string id)
+        {
+            ID = Guid.Parse(id);
         }
     }
 }

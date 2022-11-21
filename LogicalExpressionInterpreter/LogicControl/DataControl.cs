@@ -10,7 +10,16 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 for (int i = 0; i < userFunctions.Count; i++)
                 {
-                    sw.WriteLine(userFunctions[i].GetName() + ":" + userFunctions[i].GetExpression());
+                    sw.Write(userFunctions[i].GetName() + ":" + userFunctions[i].GetExpression() + "," + userFunctions[i].GetID());
+
+                    if (userFunctions[i].GetNestedFunctions().Count != 0)
+                    {
+                        for (int k = 0; k < userFunctions[i].GetNestedFunctions().Count; k++)
+                        {
+                            sw.Write("," + userFunctions[i].GetNestedFunctions()[k].GetID());
+                        }
+                    }
+                    sw.WriteLine();
                 }
             }
         }
@@ -28,7 +37,21 @@ namespace LogicalExpressionInterpreter.LogicControl
             for (int i = 0; i < fileLines.Length; i++)
             {
                 string[] values = Utility.Split(fileLines[i], ':');
-                loadedFunctions.Add(new LogicFunction(values[0], values[1]));
+                string[] valuesSplit = Utility.Split(values[1], ',');
+
+                var loadedFunction = new LogicFunction(values[0], valuesSplit[0]);
+                loadedFunction.SetID(valuesSplit[1]);
+
+                if(valuesSplit.Length > 2)
+                {
+                    for (int k = 2; k < valuesSplit.Length; k++)
+                    {
+
+                    }
+                }
+                
+
+                loadedFunctions.Add(loadedFunction);
             }
 
             return loadedFunctions;

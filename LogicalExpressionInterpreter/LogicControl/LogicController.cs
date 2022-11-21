@@ -54,7 +54,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case 4: SolveFunction(); break;
                     case 5: CreateTable(); break;
                     case 6: FindFunctionFromTruthTable(); break;
-                    case 7: return;
+                    case 7: DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
                 }
 
                 Console.WriteLine();
@@ -97,12 +97,17 @@ namespace LogicalExpressionInterpreter.LogicControl
                 case 2:
                     {
                         var chosenFunction = ChooseFunction();
+
                         Console.WriteLine("Enter function name: ");
                         string name = Console.ReadLine();
                         Console.WriteLine("Enter new bool expression/function: ");
-                        string expression = Console.ReadLine();
                         Console.Write(chosenFunction.GetExpression() + " ");
-                        userFunctions.Add(new LogicFunction(name, chosenFunction.GetExpression() + expression));
+                        string expression = Console.ReadLine();
+                        
+                        var newFunction = new LogicFunction(name, expression);
+                        newFunction.AddNestedFunction(chosenFunction);
+
+                        userFunctions.Add(newFunction);
                         break;
                     }
             }
@@ -127,9 +132,20 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             Console.WriteLine("Current Functions: ");
 
+            string line = "";
+
             for (int i = 0; i < userFunctions.Count; i++)
             {
-                Console.WriteLine(i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression());
+                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
+                if (userFunctions[i].GetNestedFunctions().Count != 0)
+                {
+                    line = i + 1 + ". " 
+                        + userFunctions[i].GetName() + ": " 
+                        + userFunctions[i].GetNestedFunctionsNames() 
+                        + userFunctions[i].GetExpression(); 
+                } 
+
+                Console.WriteLine(line);
             }
         }
 
@@ -140,23 +156,23 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return null;
             }
 
-            Console.WriteLine("Choose function: ");
+            Console.WriteLine("Enter chosen function name: ");
             PrintFunctions();
 
             bool valid = false;
 
-            while (!valid) 
+            while (!valid)
             {
                 valid = int.TryParse(Console.ReadLine(), out int input);
 
-                if(valid && input >= 1 && input <= userFunctions.Count)
+                if (valid && input >= 1 && input <= userFunctions.Count)
                 {
                     return userFunctions[input - 1];
                 }
 
                 Console.WriteLine("Invalid input! Try again.");
                 PrintFunctions();
-                valid = false;                
+                valid = false;
             }
 
             return null;
