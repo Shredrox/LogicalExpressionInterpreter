@@ -9,7 +9,7 @@ namespace LogicalExpressionInterpreter.LogicControl
         private string Expression = "";
         private List<Token> Tokens;
         private List<string> Operands;
-        private string[,] TruthTable;
+        private string[,]? TruthTable;
         private List<LogicFunction> NestedFunctions;
 
         public LogicFunction(string name, string expression)
@@ -54,7 +54,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             TruthTable = truthTable;
         }
 
-        public string[,] GetTruthTable()
+        public string[,]? GetTruthTable()
         {
             return TruthTable;
         }

@@ -188,8 +188,18 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             Console.WriteLine("Enter bool values: ");
-            string values = Console.ReadLine();
-            string[] boolInput = Utility.Split(values, ' ');
+            string[] boolInput;
+            while (true)
+            {
+                boolInput = CheckBoolInput(Console.ReadLine());
+                if (boolInput == null)
+                {
+                    Console.WriteLine("Invalid Input. Try Again.");
+                    continue;
+                }
+
+                break;
+            }
 
             var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
             var postfixTokens = Parser.ConvertToPostfix(tokens);
@@ -198,6 +208,20 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             Console.WriteLine("Result: " + Tree.Evaluate(root));
             Console.WriteLine();
+        }
+
+        public static string[]? CheckBoolInput(string input)
+        {
+            string[] boolValues = Utility.Split(input, ' ');
+            for (int i = 0; i < boolValues.Length; i++)
+            {
+                if (!bool.TryParse(boolValues[i], out _))
+                {
+                    return null;
+                }
+            }
+
+            return boolValues;
         }
 
         public static void CreateTable()
