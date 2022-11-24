@@ -15,20 +15,6 @@ namespace LogicalExpressionInterpreter.LogicControl
         private List<LogicFunction> NestedFunctions;
         private List<string[]> FunctionsOperands;
 
-        public LogicFunction(string name, string expression)
-        {
-            Name = name;
-            IncrementingID++;
-            ID = IncrementingID;
-            Expression = expression;
-            Tokens = Tokenizer.Tokenize(expression);
-            Operands = new List<string>();
-            NestedFunctions= new List<LogicFunction>();
-            FunctionsOperands = new List<string[]>();
-            SetOperandsFromExpression();
-            FunctionsOperands.Add(Operands.ToArray());
-        }
-
         public LogicFunction(string name, string expression, string combinedName)
         {
             Name = name;

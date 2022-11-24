@@ -6,7 +6,6 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class LogicController
     {
-        //C:\Users\User\Desktop\test.csv
         private static List<LogicFunction> userFunctions = new();
 
         public static void Run()
