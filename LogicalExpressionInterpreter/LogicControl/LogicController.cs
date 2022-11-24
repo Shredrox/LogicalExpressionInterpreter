@@ -1,11 +1,13 @@
 ﻿using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.Parsing;
 using LogicalExpressionInterpreter.UtilityClasses;
+using System.IO;
 
 namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class LogicController
     {
+        //C:\Users\User\Desktop\test.csv
         private static List<LogicFunction> userFunctions = new();
 
         public static void Run()
@@ -35,10 +37,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case "PRINTALL": PrintFunctions(); break;
                     case "SOLVE": SolveFunction(inputSplit[1]); break;
                     case "ALL": CreateTruthTable(inputSplit[1]); break;
-                    case "FIND":
-                        {
-                            break;
-                        }
+                    case "FIND": FindFunction(inputSplit[1]); break;
                     case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
                     default: Console.WriteLine("Invalid Command."); break;
                 }
@@ -53,7 +52,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
             string operands = Utility.TrimEnd(splitName[1], ')');
-            string expression = inputSplit[1];
+            string expression = Utility.TrimStart(inputSplit[1], ' ');
 
             userFunctions.Add(new LogicFunction(name, expression, inputSplit[0]));
         }
@@ -226,60 +225,31 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void FindFunction(string input)
         {
-
-        }
-
-        public static void FindFunctionFromTruthTable()
-        {
-            Console.WriteLine("Choose option:");
-            Console.WriteLine("1. From File (.csv)");
-            Console.WriteLine("2. From Input");
-
-            bool valid = false;
-            int input = 0;
-
-            while (!valid)
+            if (Path.HasExtension(input))
             {
-                valid = int.TryParse(Console.ReadLine(), out input);
-
-                if (valid && (input == 1 || input == 2))
+                if (!File.Exists(input))
                 {
-                    break;
+                    Console.WriteLine("File doesn't exist.");
+                    return;
                 }
 
-                Console.WriteLine("Invalid input! Try again.");
-                valid = false;
-            }
+                List<string> fileContent = new();
 
-            switch (input)
-            {
-                case 1: GetTruthTableFile(); break;
-                case 2: GetTruthTableInput(); break;
-            }
-        }
-
-        public static void GetTruthTableFile()
-        {
-            Console.WriteLine("Enter file path: ");
-            string path = Console.ReadLine();
-            if(!File.Exists(path))
-            {
-                Console.WriteLine("File doesn't exist.");
-                return;
-            }
-
-            List<string> input = new();
-
-            using (var reader = new StreamReader(path))
-            {
-                while (!reader.EndOfStream)
+                using (var reader = new StreamReader(input))
                 {
-                    var line = reader.ReadLine();
-                    input.Add(line);
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        fileContent.Add(line);
+                    }
                 }
-            }
 
-            SearchForFunction(input, ',');
+                SearchForFunction(fileContent, ',');
+            }
+            else
+            {
+
+            }
         }
 
         public static void GetTruthTableInput()
