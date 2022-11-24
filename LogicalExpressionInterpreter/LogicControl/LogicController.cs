@@ -72,7 +72,24 @@ namespace LogicalExpressionInterpreter.LogicControl
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
+            string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
+
+            var expressionTokens = Tokenizer.Tokenize(expression);
+            int counter = 0;
+            for (int i = 0; i < expressionTokens.Count; i++)
+            {
+                if(expressionTokens[i].Type == Token.TokenType.LITERAL)
+                {
+                    counter++;
+                }
+            }
+
+            if(counter != operands.Length)
+            {
+                Console.WriteLine("Invalid number of operands.");
+                return;
+            }
 
             string[] splitExpression = Utility.Split(expression, ' ');
             bool validOperand = true;
@@ -82,6 +99,10 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 if (splitExpression[k] == "&&" || splitExpression[k] == "||"
                     || splitExpression[k] == "(" || splitExpression[k] == ")")
+                {
+                    continue;
+                }
+                else if (Utility.Contains(splitExpression[k], '!'))
                 {
                     continue;
                 }

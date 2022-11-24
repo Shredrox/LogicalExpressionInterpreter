@@ -129,6 +129,19 @@
             return trimmedString;
         }
 
+        public static bool Contains(string input, char c)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] == c)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static int IntPower(int baseNum, int power)
         {
             int result = baseNum;
