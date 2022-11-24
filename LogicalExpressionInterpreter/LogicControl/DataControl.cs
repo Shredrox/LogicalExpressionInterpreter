@@ -4,8 +4,13 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class DataControl
     {
-        public static void SaveToFile(List<LogicFunction> userFunctions, string path)
+        public static void SaveToFile(List<LogicFunction>? userFunctions, string path)
         {
+            if(userFunctions == null)
+            {
+                return;
+            }
+
             using (StreamWriter sw = File.CreateText(path))
             {
                 for (int i = 0; i < userFunctions.Count; i++)

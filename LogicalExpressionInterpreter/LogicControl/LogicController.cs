@@ -34,8 +34,11 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
                     case "PRINTALL": PrintFunctions(); break;
                     case "SOLVE": SolveFunction(inputSplit[1]); break;
-                    case "ALL": break;
-                    case "FIND": break;
+                    case "ALL": CreateTruthTable(inputSplit[1]); break;
+                    case "FIND":
+                        {
+                            break;
+                        }
                     case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
                     default: Console.WriteLine("Invalid Command."); break;
                 }
@@ -95,6 +98,12 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void SolveFunction(string input)
         {
+            if (userFunctions.Count == 0)
+            {
+                Console.WriteLine("No added functions to solve. Add functions and try again.");
+                return;
+            }
+
             string[] splitName = Utility.Split(input, '(');
             string name = splitName[0];
 
@@ -108,55 +117,40 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return;
             }
 
+            var chosenFunction = ChooseFunction(name);
+            var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
+            var postfixTokens = Parser.ConvertToPostfix(tokens);
+
+            Node root = Tree.CreateTree(postfixTokens, boolValues);
+
+            Console.WriteLine("Result: " + Tree.Evaluate(root));
+            Console.WriteLine();
+        }
+
+        public static LogicFunction? ChooseFunction(string name) 
+        {
             for (int i = 0; i < userFunctions.Count; i++)
             {
                 if (userFunctions[i].GetName() == name)
                 {
-                    var tokens = Tokenizer.Tokenize(userFunctions[i].GetExpression());
-                    var postfixTokens = Parser.ConvertToPostfix(tokens);
-
-                    Node root = Tree.CreateTree(postfixTokens, boolValues);
-
-                    Console.WriteLine("Result: " + Tree.Evaluate(root));
-                    Console.WriteLine();
+                    return userFunctions[i];
                 }
-            }
-
-            Console.WriteLine();
-        }
-
-        public static LogicFunction? ChooseFunction()
-        {
-            if (userFunctions.Count == 0)
-            {
-                return null;
-            }
-
-            Console.WriteLine("Choose function: ");
-            PrintFunctions();
-
-            bool valid = false;
-
-            while (!valid)
-            {
-                valid = int.TryParse(Console.ReadLine(), out int input);
-
-                if (valid && input >= 1 && input <= userFunctions.Count)
-                {
-                    return userFunctions[input - 1];
-                }
-
-                Console.WriteLine("Invalid input! Try again.");
-                PrintFunctions();
-                valid = false;
             }
 
             return null;
         }
 
-        public static void CreateTable()
+        public static void CreateTruthTable(string input)
         {
-            var chosenFunction = ChooseFunction();
+            string[] splitName = Utility.Split(input, '(');
+            string name = splitName[0];
+
+            var chosenFunction = ChooseFunction(name);
+            if(chosenFunction == null)
+            {
+                Console.WriteLine("This function doesn't exist.");
+                return;
+            }
 
             if (chosenFunction.GetTruthTable() != null)
             {
@@ -170,11 +164,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             int variationCount = Utility.IntPower(2, chosenFunction.GetOperands().Count) / 2;
             int repeatCount = 0;
 
-            for (int col = 0; col < combination.GetLength(0)-1; col++)
+            for (int col = 0; col < combination.GetLength(0) - 1; col++)
             {
                 for (int row = 0; row < combination.GetLength(1); row++)
                 {
-                    if(repeatCount == variationCount)
+                    if (repeatCount == variationCount)
                     {
                         switch (state)
                         {
@@ -228,6 +222,11 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
                 Console.WriteLine();
             }
+        }
+
+        public static void FindFunction(string input)
+        {
+
         }
 
         public static void FindFunctionFromTruthTable()
