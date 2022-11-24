@@ -20,12 +20,26 @@ namespace LogicalExpressionInterpreter.LogicControl
             //string e2 = "a && ( !( b || c ) || d ) && e";
             //string e3 = "a || ((b || c) && d)";
             //string e3 = "a && b";
-            //userFunctions.Add(input1);
-            //userFunctions.Add(e);
-            //userFunctions.Add(e2);
 
-            //var test = new LogicFunction(e3);
-            //userFunctions.Add(test);
+            while (true)
+            {
+                Console.WriteLine("Enter command: ");
+
+                string input = Console.ReadLine();
+                var inputSplit = Utility.Split(input, ' ', 2);
+
+                switch (inputSplit[0].ToUpper())
+                {
+                    case "DEFINE": AddFunction(inputSplit[1]); break;
+                    case "SOLVE": break;
+                    case "ALL": break;
+                    case "FIND": break;
+                    case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
+                    default: Console.WriteLine("Invalid Command."); break;
+                }
+
+                break;
+            }
 
             while (true)
             {
@@ -59,6 +73,17 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 Console.WriteLine();
             }
+        }
+
+        public static void AddFunction(string input)
+        {
+            string[] inputSplit = Utility.Split(input, ':');
+            string[] splitName = Utility.Split(inputSplit[0], '(');
+            string name = splitName[0];
+            string operands = Utility.TrimEnd(splitName[1], ')');
+            string expression = inputSplit[1];
+
+            userFunctions.Add(new LogicFunction(name, expression, inputSplit[0]));
         }
 
         public static void AddFunction()
@@ -156,7 +181,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return null;
             }
 
-            Console.WriteLine("Enter chosen function name: ");
+            Console.WriteLine("Choose function: ");
             PrintFunctions();
 
             bool valid = false;

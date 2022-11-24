@@ -5,22 +5,43 @@ namespace LogicalExpressionInterpreter.LogicControl
     public class LogicFunction
     {
         private string Name = "";
-        private Guid ID = Guid.NewGuid();
+        private string CombinedName = "";
+        private int ID;
+        private static int IncrementingID;
         private string Expression = "";
         private List<Token> Tokens;
         private List<string> Operands;
         private string[,]? TruthTable;
         private List<LogicFunction> NestedFunctions;
+        private List<string[]> FunctionsOperands;
 
         public LogicFunction(string name, string expression)
         {
             Name = name;
+            IncrementingID++;
+            ID = IncrementingID;
             Expression = expression;
-            Tokens = new List<Token>();
             Tokens = Tokenizer.Tokenize(expression);
             Operands = new List<string>();
             NestedFunctions= new List<LogicFunction>();
+            FunctionsOperands = new List<string[]>();
             SetOperandsFromExpression();
+            FunctionsOperands.Add(Operands.ToArray());
+        }
+
+        public LogicFunction(string name, string expression, string combinedName)
+        {
+            Name = name;
+            CombinedName = combinedName;
+            IncrementingID++;
+            ID = IncrementingID;
+            Expression = expression;
+            Tokens = Tokenizer.Tokenize(expression);
+            Operands = new List<string>();
+            NestedFunctions = new List<LogicFunction>();
+            FunctionsOperands = new List<string[]>();
+            SetOperandsFromExpression();
+            FunctionsOperands.Add(Operands.ToArray());
         }
 
         private void SetOperandsFromExpression()
@@ -62,6 +83,7 @@ namespace LogicalExpressionInterpreter.LogicControl
         public void AddNestedFunction(LogicFunction function)
         {
             NestedFunctions.Add(function);
+            FunctionsOperands.Add(function.GetOperands().ToArray());
         }
 
         public List<LogicFunction> GetNestedFunctions()
@@ -86,14 +108,9 @@ namespace LogicalExpressionInterpreter.LogicControl
             return Name;
         }
 
-        public Guid GetID()
+        public int GetID()
         {
             return ID;
-        }
-
-        public void SetID(string id)
-        {
-            ID = Guid.Parse(id);
         }
     }
 }
