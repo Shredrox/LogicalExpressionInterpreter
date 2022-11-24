@@ -108,6 +108,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             return Name;
         }
 
+        public string GetCombinedName()
+        {
+            return CombinedName;
+        }
+
         public int GetID()
         {
             return ID;

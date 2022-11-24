@@ -2,6 +2,8 @@
 {
     public class Utility
     {
+        public static string Alphabet = "abcdefghijklmnopqrstuvwxyz";
+
         public static string[] Split(string input, char separator)
         {
             int counter = 1;

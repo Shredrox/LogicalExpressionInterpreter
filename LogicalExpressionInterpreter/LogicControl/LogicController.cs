@@ -1,7 +1,6 @@
 ﻿using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.Parsing;
 using LogicalExpressionInterpreter.UtilityClasses;
-using System.IO;
 
 namespace LogicalExpressionInterpreter.LogicControl
 {
@@ -27,8 +26,32 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 Console.WriteLine("Enter command: ");
 
-                string input = Console.ReadLine();
-                var inputSplit = Utility.Split(input, ' ', 2);
+                //string input = Console.ReadLine();
+                string input = "0";
+                int lineCounter = 1;
+                List<string> inputLines = new();
+                while (input != "" && input != " ")
+                {
+                    input = Console.ReadLine();
+                    if (input == "" || input == " ")
+                    {
+                        continue;
+                    }
+                    if (Utility.TrimStart(Utility.Split(input, ' ')[0], ' ').ToUpper() != "FIND" && (lineCounter == 1))
+                    {
+                        inputLines.Add(input);
+                        break;
+                    }
+                    inputLines.Add(input);
+                    lineCounter++;
+                }
+
+                for (int i = 0; i < inputLines.Count; i++)
+                {
+                    inputLines[i] = Utility.TrimStart(inputLines[i], ' ');
+                }
+                var inputSplit = Utility.Split(inputLines[0], ' ', 2);
+                //var inputSplit = Utility.Split(input, ' ', 2);
 
                 switch (inputSplit[0].ToUpper())
                 {
@@ -37,7 +60,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case "PRINTALL": PrintFunctions(); break;
                     case "SOLVE": SolveFunction(inputSplit[1]); break;
                     case "ALL": CreateTruthTable(inputSplit[1]); break;
-                    case "FIND": FindFunction(inputSplit[1]); break;
+                    case "FIND": FindFunction(inputLines); break;
                     case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
                     default: Console.WriteLine("Invalid Command."); break;
                 }
@@ -53,6 +76,45 @@ namespace LogicalExpressionInterpreter.LogicControl
             string name = splitName[0];
             string operands = Utility.TrimEnd(splitName[1], ')');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
+
+            string[] splitExpression = Utility.Split(expression, ' ');
+            bool validOperand = false;
+            string invalidOperand = "";
+
+            for (int k = 0; k < splitExpression.Length; k++)
+            {
+                if (splitExpression[k] == "&&" || splitExpression[k] == "||"
+                    || splitExpression[k] == "(" || splitExpression[k] == ")")
+                {
+                    continue;
+                }
+                else if (splitExpression[k].Length > 1)
+                {
+                    validOperand = false;
+                    invalidOperand = splitExpression[k];
+                    break;
+                }
+                else if(!Char.IsLetter(Convert.ToChar(splitExpression[k])))
+                {
+                    validOperand = false;
+                    invalidOperand = splitExpression[k];
+                    break;
+                }
+            }
+
+            //bool definedFunction = false;
+            //for (int i = 0; i < userFunctions.Count; i++)
+            //{
+            //    if (userFunctions[i].GetCombinedName() == invalidOperand)
+            //    {
+            //        definedFunction = true;
+            //    }
+            //}
+            //if (!definedFunction)
+            //{
+            //    Console.WriteLine("Function " + invalidOperand + " is not defined.");
+            //    return;
+            //}
 
             userFunctions.Add(new LogicFunction(name, expression, inputSplit[0]));
         }
@@ -223,11 +285,15 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static void FindFunction(string input)
+        public static void FindFunction(List<string> input)
         {
-            if (Path.HasExtension(input))
+            var splitLine = Utility.Split(input[0], ' ', 2);
+            input[0] = splitLine[1];
+            string parameter = splitLine[1];
+
+            if (Path.HasExtension(parameter))
             {
-                if (!File.Exists(input))
+                if (!File.Exists(parameter))
                 {
                     Console.WriteLine("File doesn't exist.");
                     return;
@@ -235,7 +301,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 List<string> fileContent = new();
 
-                using (var reader = new StreamReader(input))
+                using (var reader = new StreamReader(parameter))
                 {
                     while (!reader.EndOfStream)
                     {
@@ -248,26 +314,8 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
             else
             {
-
+                SearchForFunction(input, ' ');
             }
-        }
-
-        public static void GetTruthTableInput()
-        {
-            Console.WriteLine("Enter Truth Table: ");
-            string line = "1";
-            List<string> input = new();
-            while (line != "" && line != " ")
-            {
-                line = Console.ReadLine();
-                if (line == "" || line == " ")
-                {
-                    continue;
-                }
-                input.Add(line);
-            }
-
-            SearchForFunction(input, ' ');
         }
 
         public static LogicFunction? SearchForFunction(List<string> input, char inputSeparator)
