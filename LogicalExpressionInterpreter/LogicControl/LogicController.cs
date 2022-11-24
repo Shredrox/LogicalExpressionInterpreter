@@ -30,45 +30,14 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 switch (inputSplit[0].ToUpper())
                 {
-                    case "DEFINE": AddFunction(inputSplit[1]); break;
-                    case "SOLVE": break;
+                    case "DEFINE": AddFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
+                    case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
+                    case "PRINTALL": PrintFunctions(); break;
+                    case "SOLVE": SolveFunction(inputSplit[1]); break;
                     case "ALL": break;
                     case "FIND": break;
                     case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
                     default: Console.WriteLine("Invalid Command."); break;
-                }
-
-                break;
-            }
-
-            while (true)
-            {
-                Console.WriteLine("Choose command from menu: ");
-                Console.WriteLine("1. Add Function");
-                Console.WriteLine("2. Remove Function");
-                Console.WriteLine("3. Print Added Functions");
-                Console.WriteLine("4. Solve Function");
-                Console.WriteLine("5. Create Truth Table From Function");
-                Console.WriteLine("6. Find Logic Function In Table");
-                Console.WriteLine("7. Exit");
-
-                string input = Console.ReadLine();
-                if (!int.TryParse(input, out _))
-                {
-                    Console.WriteLine("Invalid command. Try again.");
-                    continue;
-                }
-                int command = int.Parse(input);
-
-                switch (command)
-                {
-                    case 1: AddFunction(); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
-                    case 2: RemoveFunction(); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
-                    case 3: PrintFunctions(); break;
-                    case 4: SolveFunction(); break;
-                    case 5: CreateTable(); break;
-                    case 6: FindFunctionFromTruthTable(); break;
-                    case 7: DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
                 }
 
                 Console.WriteLine();
@@ -86,65 +55,15 @@ namespace LogicalExpressionInterpreter.LogicControl
             userFunctions.Add(new LogicFunction(name, expression, inputSplit[0]));
         }
 
-        public static void AddFunction()
+        public static void RemoveFunction(string input)
         {
-            Console.WriteLine("Choose option:");
-            Console.WriteLine("1. Add new function");
-            Console.WriteLine("2. Include existing function in new function.");
-
-            bool valid = false;
-            int input = 0;
-
-            while (!valid)
+            for (int i = 0; i < userFunctions.Count; i++)
             {
-                valid = int.TryParse(Console.ReadLine(), out input);
-
-                if (valid && (input == 1 || input == 2))
+                if (userFunctions[i].GetName() == input)
                 {
-                    break;
+                    userFunctions.RemoveAt(i);
                 }
-
-                Console.WriteLine("Invalid input! Try again.");
-                valid = false;
             }
-
-            switch (input)
-            {
-                case 1:
-                    {
-                        Console.WriteLine("Enter function name: ");
-                        string name = Console.ReadLine();
-                        Console.WriteLine("Enter new bool expression/function: ");
-                        string expression = Console.ReadLine(); 
-                        userFunctions.Add(new LogicFunction(name, expression));
-                        break;
-                    }
-                case 2:
-                    {
-                        var chosenFunction = ChooseFunction();
-
-                        Console.WriteLine("Enter function name: ");
-                        string name = Console.ReadLine();
-                        Console.WriteLine("Enter new bool expression/function: ");
-                        Console.Write(chosenFunction.GetExpression() + " ");
-                        string expression = Console.ReadLine();
-                        
-                        var newFunction = new LogicFunction(name, expression);
-                        newFunction.AddNestedFunction(chosenFunction);
-
-                        userFunctions.Add(newFunction);
-                        break;
-                    }
-            }
-        }
-
-        private static void RemoveFunction()
-        {
-            Console.WriteLine("Choose function to delete: ");
-            PrintFunctions();
-
-            int choice = int.Parse(Console.ReadLine()) - 1;
-            userFunctions.RemoveAt(choice);
         }
 
         public static void PrintFunctions()
@@ -174,6 +93,38 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
+        public static void SolveFunction(string input)
+        {
+            string[] splitName = Utility.Split(input, '(');
+            string name = splitName[0];
+
+            string valueString = Utility.TrimEnd(splitName[1], ')');
+            string[] values = Utility.Split(valueString, ',');
+            var boolValues = Utility.CheckBoolInput(values);
+
+            if(boolValues == null)
+            {
+                Console.WriteLine("Invalid bool input. Try Again.");
+                return;
+            }
+
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetName() == name)
+                {
+                    var tokens = Tokenizer.Tokenize(userFunctions[i].GetExpression());
+                    var postfixTokens = Parser.ConvertToPostfix(tokens);
+
+                    Node root = Tree.CreateTree(postfixTokens, boolValues);
+
+                    Console.WriteLine("Result: " + Tree.Evaluate(root));
+                    Console.WriteLine();
+                }
+            }
+
+            Console.WriteLine();
+        }
+
         public static LogicFunction? ChooseFunction()
         {
             if (userFunctions.Count == 0)
@@ -201,52 +152,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             return null;
-        }
-
-        public static void SolveFunction()
-        {
-            var chosenFunction = ChooseFunction();
-            if(chosenFunction == null)
-            {
-                Console.WriteLine("No added functions to solve. Add functions and try again.");
-                return;
-            }
-
-            Console.WriteLine("Enter bool values: ");
-            string[] boolInput;
-            while (true)
-            {
-                boolInput = CheckBoolInput(Console.ReadLine());
-                if (boolInput == null)
-                {
-                    Console.WriteLine("Invalid Input. Try Again.");
-                    continue;
-                }
-
-                break;
-            }
-
-            var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
-            var postfixTokens = Parser.ConvertToPostfix(tokens);
-
-            Node root = Tree.CreateTree(postfixTokens, boolInput);
-
-            Console.WriteLine("Result: " + Tree.Evaluate(root));
-            Console.WriteLine();
-        }
-
-        public static string[]? CheckBoolInput(string input)
-        {
-            string[] boolValues = Utility.Split(input, ' ');
-            for (int i = 0; i < boolValues.Length; i++)
-            {
-                if (!bool.TryParse(boolValues[i], out _))
-                {
-                    return null;
-                }
-            }
-
-            return boolValues;
         }
 
         public static void CreateTable()

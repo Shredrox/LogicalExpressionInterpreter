@@ -105,6 +105,28 @@
             return trimmedString;
         }
 
+        public static string TrimStart(string input, char trimChar)
+        {
+            string trimmedString = "";
+            bool passedWhitespaces = false;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] == trimChar && !passedWhitespaces)
+                {
+                    continue;
+                }
+                else
+                {
+                    passedWhitespaces = true;
+                }
+
+                trimmedString += input[i];
+            }
+
+            return trimmedString;
+        }
+
         public static int IntPower(int baseNum, int power)
         {
             int result = baseNum;
@@ -114,6 +136,22 @@
             }
 
             return result;
+        }
+
+        public static string[]? CheckBoolInput(string[] input)
+        {
+            string[] boolValues = input;
+            for (int i = 0; i < boolValues.Length; i++)
+            {
+                boolValues[i] = Utility.TrimStart(boolValues[i], ' ');
+
+                if (!bool.TryParse(boolValues[i], out _))
+                {
+                    return null;
+                }
+            }
+
+            return boolValues;
         }
     }
 }
