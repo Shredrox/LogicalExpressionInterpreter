@@ -26,7 +26,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 Console.WriteLine("Enter command: ");
 
-                //string input = Console.ReadLine();
                 string input = "0";
                 int lineCounter = 1;
                 List<string> inputLines = new();
@@ -51,7 +50,6 @@ namespace LogicalExpressionInterpreter.LogicControl
                     inputLines[i] = Utility.TrimStart(inputLines[i], ' ');
                 }
                 var inputSplit = Utility.Split(inputLines[0], ' ', 2);
-                //var inputSplit = Utility.Split(input, ' ', 2);
 
                 switch (inputSplit[0].ToUpper())
                 {
@@ -74,11 +72,10 @@ namespace LogicalExpressionInterpreter.LogicControl
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
-            string operands = Utility.TrimEnd(splitName[1], ')');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
 
             string[] splitExpression = Utility.Split(expression, ' ');
-            bool validOperand = false;
+            bool validOperand = true;
             string invalidOperand = "";
 
             for (int k = 0; k < splitExpression.Length; k++)
@@ -102,19 +99,19 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
             }
 
-            //bool definedFunction = false;
-            //for (int i = 0; i < userFunctions.Count; i++)
-            //{
-            //    if (userFunctions[i].GetCombinedName() == invalidOperand)
-            //    {
-            //        definedFunction = true;
-            //    }
-            //}
-            //if (!definedFunction)
-            //{
-            //    Console.WriteLine("Function " + invalidOperand + " is not defined.");
-            //    return;
-            //}
+            bool definedFunction = false;
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetCombinedName() == invalidOperand)
+                {
+                    definedFunction = true;
+                }
+            }
+            if (!definedFunction && !validOperand)
+            {
+                Console.WriteLine("Invalid Operand/Nested Function: " + invalidOperand);
+                return;
+            }
 
             userFunctions.Add(new LogicFunction(name, expression, inputSplit[0]));
         }
@@ -140,7 +137,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             Console.WriteLine("Current Functions: ");
 
-            string line = "";
+            string line;
 
             for (int i = 0; i < userFunctions.Count; i++)
             {
