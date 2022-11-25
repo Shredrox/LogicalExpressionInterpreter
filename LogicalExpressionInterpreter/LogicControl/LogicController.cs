@@ -68,6 +68,8 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void AddFunction(string input)
         {
+            //DEFINE func2(a,b,c,d): (func1(a,b) || c) && d
+            //DEFINE func2(a,b,c,d): (a || func1(b,c)) && d
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
@@ -75,11 +77,26 @@ namespace LogicalExpressionInterpreter.LogicControl
             string expression = Utility.TrimStart(inputSplit[1], ' ');
 
             int counter = 0;
+            string nestedFunctionName = "";
+            int nestedFunctionOperandCount = 0;
             string[] splitExpression = Utility.Split(expression, ' ');
             for (int i = 0; i < splitExpression.Length; i++)
             {
+                splitExpression[i] = Utility.TrimStart(splitExpression[i], '(');
+                splitExpression[i] = Utility.TrimEnd(splitExpression[i], ')');
+
                 if (splitExpression[i] == "&&" || splitExpression[i] == "||")
                 {
+                    continue;
+                }
+                if (Utility.Contains(splitExpression[i], ','))
+                {
+                    var spl = Utility.Split(splitExpression[i], '(');
+                    nestedFunctionName = spl[0];
+                    var e = spl[1];
+                    var o = Utility.Split(e, ',');
+                    nestedFunctionOperandCount = o.Length;
+                    counter += o.Length;
                     continue;
                 }
                 counter++;
@@ -125,7 +142,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             LogicFunction nestedFunction;
             for (int i = 0; i < userFunctions.Count; i++)
             {
-                if (userFunctions[i].GetCombinedName() == invalidOperand)
+                if (userFunctions[i].GetName() == nestedFunctionName && userFunctions[i].GetOperands().Count == nestedFunctionOperandCount)
                 {
                     definedFunction = true;
                     nestedFunction = userFunctions[i];
