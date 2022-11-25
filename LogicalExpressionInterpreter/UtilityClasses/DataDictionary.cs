@@ -20,6 +20,19 @@
             values.Add(value);
         }
 
+        public TValue? GetValue(TKey key)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].GetKey().Equals(key))
+                {
+                    return items[i].GetValue();
+                }
+            }
+
+            throw new Exception("Dictionary doesn't contain key");
+        }
+
         public bool ContainsKey(TKey key)
         {
             return keys.Contains(key);
