@@ -201,12 +201,22 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             var chosenFunction = ChooseFunction(name);
+
+            if (chosenFunction.ContainsResult(Utility.Concat(boolValues)))
+            {
+                Console.WriteLine("Result: " + chosenFunction.GetResult(Utility.Concat(boolValues)));
+                Console.WriteLine();
+                return;
+            }
+
             var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
             var postfixTokens = Parser.ConvertToPostfix(tokens);
 
             Node root = Tree.CreateTree(postfixTokens, boolValues);
+            var result = Tree.Evaluate(root);
+            chosenFunction.AddResult(Utility.Concat(boolValues), result);
 
-            Console.WriteLine("Result: " + Tree.Evaluate(root));
+            Console.WriteLine("Result: " + result);
             Console.WriteLine();
         }
 

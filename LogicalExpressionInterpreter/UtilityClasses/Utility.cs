@@ -129,6 +129,17 @@
             return trimmedString;
         }
 
+        public static string Concat(string[] strings)
+        {
+            string result = "";
+            for (int i = 0; i < strings.Length; i++)
+            {
+                result += strings[i];
+            }
+
+            return result;
+        }
+
         public static bool Contains(string input, char c)
         {
             for (int i = 0; i < input.Length; i++)

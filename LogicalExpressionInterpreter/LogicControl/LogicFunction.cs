@@ -1,4 +1,5 @@
 ﻿using LogicalExpressionInterpreter.Parsing;
+using LogicalExpressionInterpreter.UtilityClasses;
 
 namespace LogicalExpressionInterpreter.LogicControl
 {
@@ -14,6 +15,7 @@ namespace LogicalExpressionInterpreter.LogicControl
         private string[,]? TruthTable;
         private List<LogicFunction> NestedFunctions;
         private List<string[]> FunctionsOperands;
+        private DataDictionary<string, bool> ResultCollection;
 
         public LogicFunction(string name, string expression, string combinedName)
         {
@@ -26,6 +28,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             Operands = new List<string>();
             NestedFunctions = new List<LogicFunction>();
             FunctionsOperands = new List<string[]>();
+            ResultCollection = new DataDictionary<string, bool>();
             SetOperandsFromExpression();
             FunctionsOperands.Add(Operands.ToArray());
         }
@@ -102,6 +105,21 @@ namespace LogicalExpressionInterpreter.LogicControl
         public int GetID()
         {
             return ID;
+        }
+
+        public void AddResult(string values, bool result)
+        {
+            ResultCollection.Add(values, result);
+        }
+
+        public bool ContainsResult(string values)
+        {
+            return ResultCollection.ContainsKey(values);
+        }
+
+        public bool GetResult(string values)
+        {
+            return ResultCollection.GetValue(values);
         }
     }
 }
