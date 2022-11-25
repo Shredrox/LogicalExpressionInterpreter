@@ -74,23 +74,23 @@ namespace LogicalExpressionInterpreter.LogicControl
             string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
 
-            var expressionTokens = Tokenizer.Tokenize(expression);
             int counter = 0;
-            for (int i = 0; i < expressionTokens.Count; i++)
+            string[] splitExpression = Utility.Split(expression, ' ');
+            for (int i = 0; i < splitExpression.Length; i++)
             {
-                if(expressionTokens[i].Type == Token.TokenType.LITERAL)
+                if (splitExpression[i] == "&&" || splitExpression[i] == "||")
                 {
-                    counter++;
+                    continue;
                 }
+                counter++;
             }
 
-            if(counter != operands.Length)
+            if (counter != operands.Length)
             {
                 Console.WriteLine("Invalid number of operands.");
                 return;
             }
 
-            string[] splitExpression = Utility.Split(expression, ' ');
             bool validOperand = true;
             string invalidOperand = "";
 
@@ -119,12 +119,17 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
             }
 
+            var newFunction = new LogicFunction(name, expression, inputSplit[0]);
+
             bool definedFunction = false;
+            LogicFunction nestedFunction;
             for (int i = 0; i < userFunctions.Count; i++)
             {
                 if (userFunctions[i].GetCombinedName() == invalidOperand)
                 {
                     definedFunction = true;
+                    nestedFunction = userFunctions[i];
+                    newFunction.AddNestedFunction(nestedFunction);
                 }
             }
             if (!definedFunction && !validOperand)
@@ -133,7 +138,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return;
             }
 
-            userFunctions.Add(new LogicFunction(name, expression, inputSplit[0]));
+            userFunctions.Add(newFunction);
         }
 
         public static void RemoveFunction(string input)
