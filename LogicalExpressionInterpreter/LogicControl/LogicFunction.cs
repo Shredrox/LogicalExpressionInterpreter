@@ -7,8 +7,6 @@ namespace LogicalExpressionInterpreter.LogicControl
     {
         private string Name = "";
         private string CombinedName = "";
-        private int ID;
-        private static int IncrementingID;
         private string Expression = "";
         private List<Token> Tokens;
         private List<string> Operands;
@@ -21,8 +19,6 @@ namespace LogicalExpressionInterpreter.LogicControl
         {
             Name = name;
             CombinedName = combinedName;
-            IncrementingID++;
-            ID = IncrementingID;
             Expression = expression;
             Tokens = Tokenizer.Tokenize(expression);
             Operands = new List<string>();
@@ -100,11 +96,6 @@ namespace LogicalExpressionInterpreter.LogicControl
         public string GetCombinedName()
         {
             return CombinedName;
-        }
-
-        public int GetID()
-        {
-            return ID;
         }
 
         public void AddResult(string values, bool result)

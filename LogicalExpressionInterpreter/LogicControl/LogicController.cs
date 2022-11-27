@@ -69,16 +69,27 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void AddFunction(string input)
         {
             //DEFINE func2(a,b,c,d): (func1(a,b) || c) && d
-            //DEFINE func2(a,b,c,d): (a || func1(b,c)) && d
+            //DEFINE func2(a,b,c,d): ($ || func1(b,c)) && d
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
+
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetName() == name) 
+                {
+                    Console.WriteLine("A function with this name already exists.");
+                    return;
+                }
+            }
+
             string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
 
             int counter = 0;
             string nestedFunctionName = "";
-            int nestedFunctionOperandCount = 0;
+            int nestedFunctionSplitIndex = 0;
+            string[] nestedFunctionOperands = new string[1];
             string[] splitExpression = Utility.Split(expression, ' ');
             for (int i = 0; i < splitExpression.Length; i++)
             {
@@ -94,9 +105,9 @@ namespace LogicalExpressionInterpreter.LogicControl
                     var spl = Utility.Split(splitExpression[i], '(');
                     nestedFunctionName = spl[0];
                     var e = spl[1];
-                    var o = Utility.Split(e, ',');
-                    nestedFunctionOperandCount = o.Length;
-                    counter += o.Length;
+                    nestedFunctionSplitIndex = i;
+                    nestedFunctionOperands = Utility.Split(e, ',');
+                    counter += nestedFunctionOperands.Length;
                     continue;
                 }
                 counter++;
@@ -122,7 +133,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {
                     continue;
                 }
-                else if (splitExpression[k].Length > 1)
+                else if (Utility.ContainsMoreThanOneLetter(splitExpression[k]))
                 {
                     validOperand = false;
                     invalidOperand = splitExpression[k];
@@ -142,11 +153,12 @@ namespace LogicalExpressionInterpreter.LogicControl
             LogicFunction nestedFunction;
             for (int i = 0; i < userFunctions.Count; i++)
             {
-                if (userFunctions[i].GetName() == nestedFunctionName && userFunctions[i].GetOperands().Count == nestedFunctionOperandCount)
+                if (userFunctions[i].GetName() == nestedFunctionName)
                 {
                     definedFunction = true;
                     nestedFunction = userFunctions[i];
                     newFunction.AddNestedFunction(nestedFunction);
+                    splitExpression[nestedFunctionSplitIndex] = Utility.ConcatWithSpaces(nestedFunctionOperands);
                 }
             }
             if (!definedFunction && !validOperand)

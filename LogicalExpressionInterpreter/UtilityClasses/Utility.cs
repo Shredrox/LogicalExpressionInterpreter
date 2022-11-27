@@ -140,6 +140,22 @@
             return result;
         }
 
+        public static string ConcatWithSpaces(string[] strings)
+        {
+            string result = "";
+            for (int i = 0; i < strings.Length; i++)
+            {
+                if (i+1 == strings.Length)
+                {
+                    result += strings[i];
+                    break;
+                }
+                result += strings[i] + " ";
+            }
+
+            return result;
+        }
+
         public static bool Contains(string input, char c)
         {
             for (int i = 0; i < input.Length; i++)
@@ -147,6 +163,24 @@
                 if (input[i] == c)
                 {
                     return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool ContainsMoreThanOneLetter(string input)
+        {
+            int counter = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                if(counter > 1)
+                {
+                    return true;
+                }
+                if ((input[i] >= 97 && input[i] <= 122) || (input[i] >= 65 && input[i] <= 90))
+                {
+                    counter++;
                 }
             }
 
