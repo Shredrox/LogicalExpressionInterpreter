@@ -129,6 +129,69 @@
             return trimmedString;
         }
 
+        public static string TrimEndToPenultimate(string input, char trimChar)
+        {
+            string trimmedStringReversed = "";
+            string trimmedString = "";
+            bool passedWhitespaces = false;
+
+            for (int i = input.Length - 1; i >= 0; i--)
+            {
+                if (input[i] == trimChar && !passedWhitespaces)
+                {
+                    if (input[i] == trimChar && input[i - 1] != trimChar && i - 1 >= 0)
+                    {
+                        trimmedStringReversed += input[i];
+                    }
+                    continue;
+                }
+                else
+                {
+                    passedWhitespaces = true;
+                }
+
+                trimmedStringReversed += input[i];
+            }
+
+            for (int i = trimmedStringReversed.Length - 1; i >= 0; i--)
+            {
+                trimmedString += trimmedStringReversed[i];
+            }
+
+            return trimmedString;
+        }
+
+        public static string TrimEndToPenultimateValue(string input, char trimChar)
+        {
+            string trimmedStringReversed = "";
+            string trimmedString = "";
+            bool passedWhitespaces = false;
+
+            for (int i = input.Length - 1; i >= 0; i--)
+            {
+                if (input[i] == trimChar && !passedWhitespaces)
+                {
+                    if (input[i] == trimChar && input[i - 1] != trimChar && i - 1 >= 0)
+                    {
+                        break;
+                    }
+                    trimmedStringReversed += input[i];
+                    continue;
+                }
+                else
+                {
+                    passedWhitespaces = true;
+                }
+            }
+
+            for (int i = trimmedStringReversed.Length - 1; i >= 0; i--)
+            {
+                trimmedString += trimmedStringReversed[i];
+            }
+
+            return trimmedString;
+        }
+
         public static string Concat(string[] strings)
         {
             string result = "";
@@ -185,6 +248,68 @@
             }
 
             return false;
+        }
+
+        public static string TrimStartValue(string input, char trimChar)
+        {
+            string trimmedString = "";
+            bool passedWhitespaces = false;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] == trimChar && !passedWhitespaces)
+                {
+                    trimmedString += input[i];
+                    continue;
+                }
+                else
+                {
+                    passedWhitespaces = true;
+                }
+            }
+
+            return trimmedString;
+        }
+
+        public static string TrimEndValue(string input, char trimChar)
+        {
+            string trimmedStringReversed = "";
+            string trimmedString = "";
+            bool passedWhitespaces = false;
+
+            for (int i = input.Length - 1; i >= 0; i--)
+            {
+                if (input[i] == trimChar && !passedWhitespaces)
+                {
+                    trimmedStringReversed += input[i];
+                    continue;
+                }
+                else
+                {
+                    passedWhitespaces = true;
+                }
+            }
+
+            for (int i = trimmedStringReversed.Length - 1; i >= 0; i--)
+            {
+                trimmedString += trimmedStringReversed[i];
+            }
+
+            return trimmedString;
+        }
+
+        public static int GetCountOf(string input, char c) 
+        {
+            int counter = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] == c)
+                {
+                    counter++;
+                }
+            }
+
+            return counter;
         }
 
         public static int IntPower(int baseNum, int power)

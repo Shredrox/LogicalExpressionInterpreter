@@ -29,6 +29,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             FunctionsOperands.Add(Operands.ToArray());
         }
 
+        public LogicFunction()
+        {
+
+        }
+
         private void SetOperandsFromExpression()
         {
             for (int i = 0; i < Tokens.Count; i++)

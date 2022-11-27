@@ -12,7 +12,8 @@
             NOT,
             LITERAL,
             OPEN_PAREN,
-            CLOSE_PAREN
+            CLOSE_PAREN,
+            NESTED_FUNCTION
         }
 
         public Token(TokenType type, string value)

@@ -69,10 +69,12 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void AddFunction(string input)
         {
             //DEFINE func2(a,b,c,d): (func1(a,b) || c) && d
-            //DEFINE func2(a,b,c,d): ($ || func1(b,c)) && d
+            //DEFINE func2(a,b,c,d): (a || func1(b,c)) && d
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
+
+            //var aa = Tokenizer.Tokenize(inputSplit[1]);
 
             for (int i = 0; i < userFunctions.Count; i++)
             {
@@ -147,17 +149,15 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
             }
 
-            var newFunction = new LogicFunction(name, expression, inputSplit[0]);
-
             bool definedFunction = false;
-            LogicFunction nestedFunction;
+            LogicFunction nestedFunction = new();
             for (int i = 0; i < userFunctions.Count; i++)
             {
                 if (userFunctions[i].GetName() == nestedFunctionName)
                 {
                     definedFunction = true;
                     nestedFunction = userFunctions[i];
-                    newFunction.AddNestedFunction(nestedFunction);
+                    
                     splitExpression[nestedFunctionSplitIndex] = Utility.ConcatWithSpaces(nestedFunctionOperands);
                 }
             }
@@ -167,6 +167,8 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return;
             }
 
+            var newFunction = new LogicFunction(name, expression, inputSplit[0]);
+            newFunction.AddNestedFunction(nestedFunction);
             userFunctions.Add(newFunction);
         }
 
