@@ -87,7 +87,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
-            string[] nestedFunctionOperands = new string[1];
+            string[] nestedFunctionOperands;
             string nestedFunctionName = "";
 
             bool definedFunction = false;

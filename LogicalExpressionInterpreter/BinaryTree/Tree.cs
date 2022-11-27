@@ -64,12 +64,12 @@ namespace LogicalExpressionInterpreter.BinaryTree
             }
 
             nestedBooleans = Utility.ReverseStack(nestedBooleans);
+            bools.Clear();
         }
 
         public static Node CreateTree(List<Token> tokens, string[] boolValues)
         {
             FillTree(tokens, boolValues);
-            //solve func5(true,true,true,true)
             ObjectStack<Node> nodes = new();
 
             for (int i = 0; i < tokens.Count; i++)
@@ -79,8 +79,17 @@ namespace LogicalExpressionInterpreter.BinaryTree
                     case Token.TokenType.NESTED_FUNCTION:
                         {
                             var nestedFunction = LogicController.ChooseFunction(Utility.Split(tokens[i].Value, '(')[0]);
-                            Console.WriteLine();
-                            var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()), nestedBooleans.Pop());
+                            var nestedBoolValues = nestedBooleans.Pop();
+
+                            if (nestedFunction.ContainsResult(Utility.Concat(nestedBoolValues)))
+                            {
+                                nodes.Push(new Node(nestedFunction.GetResult(Utility.Concat(nestedBoolValues)).ToString()));
+                                break;
+                            }
+
+                            var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()), nestedBoolValues);
+                            var result = Evaluate(nestedNode);
+                            nestedFunction.AddResult(Utility.Concat(nestedBoolValues), result);
                             nodes.Push(nestedNode);
                             break;
                         }
