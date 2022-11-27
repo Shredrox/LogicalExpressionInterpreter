@@ -29,6 +29,20 @@ namespace LogicalExpressionInterpreter.LogicControl
             FunctionsOperands.Add(Operands.ToArray());
         }
 
+        public LogicFunction(string name, string expression, string combinedName, List<Token> tokens)
+        {
+            Name = name;
+            CombinedName = combinedName;
+            Expression = expression;
+            Tokens = tokens;
+            Operands = new List<string>();
+            NestedFunctions = new List<LogicFunction>();
+            FunctionsOperands = new List<string[]>();
+            ResultCollection = new DataDictionary<string, bool>();
+            SetOperandsFromExpression();
+            FunctionsOperands.Add(Operands.ToArray());
+        }
+
         public LogicFunction()
         {
 
@@ -36,12 +50,12 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         private void SetOperandsFromExpression()
         {
-            for (int i = 0; i < Tokens.Count; i++)
+            string[] splitName = Utility.Split(CombinedName, '(');
+            string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
+
+            for (int i = 0; i < operands.Length; i++)
             {
-                if (Tokens[i].Type == Token.TokenType.LITERAL)
-                {
-                    Operands.Add(Tokens[i].Value);
-                }
+                Operands.Add(operands[i]);
             }
         }
 

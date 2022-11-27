@@ -1,4 +1,5 @@
-﻿using LogicalExpressionInterpreter.Parsing;
+﻿using LogicalExpressionInterpreter.LogicControl;
+using LogicalExpressionInterpreter.Parsing;
 using LogicalExpressionInterpreter.UtilityClasses;
 
 namespace LogicalExpressionInterpreter.BinaryTree
@@ -36,13 +37,23 @@ namespace LogicalExpressionInterpreter.BinaryTree
             return false;
         }
 
+        private static List<string> nestedBools = new();
         private static void FillTree(List<Token> tokens, string[] boolValues)
         {
             int index = 0;
 
             for (int i = 0; i < tokens.Count; i++)
             {
-                if (tokens[i].Type == Token.TokenType.LITERAL)
+                if (tokens[i].Type == Token.TokenType.NESTED_FUNCTION)
+                {
+                    var nestedFunction = LogicController.ChooseFunction(Utility.Split(tokens[i].Value, '(')[0]);
+                    for (int k = 0; k < nestedFunction.GetOperands().Count; k++)
+                    {
+                        nestedBools.Add(boolValues[index]);
+                        index++;
+                    }
+                }
+                else if (tokens[i].Type == Token.TokenType.LITERAL)
                 {
                     tokens[i].Value = boolValues[index];
                     index++;
@@ -53,13 +64,21 @@ namespace LogicalExpressionInterpreter.BinaryTree
         public static Node CreateTree(List<Token> tokens, string[] boolValues)
         {
             FillTree(tokens, boolValues);
-
+            //solve func3(true,true,false,false)
             ObjectStack<Node> nodes = new();
 
             for (int i = 0; i < tokens.Count; i++)
             {
                 switch (tokens[i].Type)
                 {
+                    case Token.TokenType.NESTED_FUNCTION:
+                        {
+                            var nestedFunction = LogicController.ChooseFunction(Utility.Split(tokens[i].Value, '(')[0]);
+                            Console.WriteLine();
+                            var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()), nestedBools.ToArray());
+                            nodes.Push(nestedNode);
+                            break;
+                        }
                     case Token.TokenType.LITERAL: nodes.Push(new Node(tokens[i].Value)); break;
                     case Token.TokenType.NOT:
                         {

@@ -1,4 +1,5 @@
-﻿using LogicalExpressionInterpreter.UtilityClasses;
+﻿using LogicalExpressionInterpreter.LogicControl;
+using LogicalExpressionInterpreter.UtilityClasses;
 
 namespace LogicalExpressionInterpreter.Parsing
 {
@@ -23,7 +24,7 @@ namespace LogicalExpressionInterpreter.Parsing
 
             for (int i = 0; i < tokens.Count; i++)
             {
-                if (tokens[i].Type == Token.TokenType.LITERAL)
+                if (tokens[i].Type == Token.TokenType.LITERAL || tokens[i].Type == Token.TokenType.NESTED_FUNCTION)
                 {
                     postfixExpression.Add(tokens[i]);
                 }

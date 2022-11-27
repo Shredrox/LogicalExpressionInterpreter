@@ -69,12 +69,12 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void AddFunction(string input)
         {
             //DEFINE func2(a,b,c,d): (func1(a,b) || c) && d
-            //DEFINE func2(a,b,c,d): (a || func1(b,c)) && d
+            //DEFINE func5(a,b,c,d): (a || func1(b,c)) && d
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
 
-            //var aa = Tokenizer.Tokenize(inputSplit[1]);
+            var tokens = Tokenizer.Tokenize(inputSplit[1]);
 
             for (int i = 0; i < userFunctions.Count; i++)
             {
@@ -87,87 +87,52 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
             string expression = Utility.TrimStart(inputSplit[1], ' ');
-
-            int counter = 0;
-            string nestedFunctionName = "";
-            int nestedFunctionSplitIndex = 0;
             string[] nestedFunctionOperands = new string[1];
-            string[] splitExpression = Utility.Split(expression, ' ');
-            for (int i = 0; i < splitExpression.Length; i++)
-            {
-                splitExpression[i] = Utility.TrimStart(splitExpression[i], '(');
-                splitExpression[i] = Utility.TrimEnd(splitExpression[i], ')');
+            string nestedFunctionName = "";
 
-                if (splitExpression[i] == "&&" || splitExpression[i] == "||")
+            bool definedFunction = false;
+            LogicFunction nestedFunction = new();
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if (tokens[i].Type == Token.TokenType.NESTED_FUNCTION)
                 {
-                    continue;
-                }
-                if (Utility.Contains(splitExpression[i], ','))
-                {
-                    var spl = Utility.Split(splitExpression[i], '(');
+                    var spl = Utility.Split(tokens[i].Value, '(');
                     nestedFunctionName = spl[0];
-                    var e = spl[1];
-                    nestedFunctionSplitIndex = i;
-                    nestedFunctionOperands = Utility.Split(e, ',');
-                    counter += nestedFunctionOperands.Length;
-                    continue;
+                    nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
+
+                    for (int k = 0; k < userFunctions.Count; k++)
+                    {
+                        if (userFunctions[k].GetName() == nestedFunctionName)
+                        {
+                            definedFunction = true;
+                            nestedFunction = userFunctions[k];
+                        }
+                    }
                 }
-                counter++;
             }
 
-            if (counter != operands.Length)
+            int literalCount = 0;
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if (tokens[i].Type == Token.TokenType.LITERAL)
+                {
+                    literalCount++;
+                }
+            }
+            literalCount += nestedFunctionOperands.Length;
+
+            if (literalCount != operands.Length)
             {
                 Console.WriteLine("Invalid number of operands.");
                 return;
             }
-
-            bool validOperand = true;
-            string invalidOperand = "";
-
-            for (int k = 0; k < splitExpression.Length; k++)
+            else if (!definedFunction)
             {
-                if (splitExpression[k] == "&&" || splitExpression[k] == "||"
-                    || splitExpression[k] == "(" || splitExpression[k] == ")")
-                {
-                    continue;
-                }
-                else if (Utility.Contains(splitExpression[k], '!'))
-                {
-                    continue;
-                }
-                else if (Utility.ContainsMoreThanOneLetter(splitExpression[k]))
-                {
-                    validOperand = false;
-                    invalidOperand = splitExpression[k];
-                    break;
-                }
-                else if(!Char.IsLetter(Convert.ToChar(splitExpression[k])))
-                {
-                    validOperand = false;
-                    invalidOperand = splitExpression[k];
-                    break;
-                }
-            }
-
-            bool definedFunction = false;
-            LogicFunction nestedFunction = new();
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetName() == nestedFunctionName)
-                {
-                    definedFunction = true;
-                    nestedFunction = userFunctions[i];
-                    
-                    splitExpression[nestedFunctionSplitIndex] = Utility.ConcatWithSpaces(nestedFunctionOperands);
-                }
-            }
-            if (!definedFunction && !validOperand)
-            {
-                Console.WriteLine("Invalid Operand/Nested Function: " + invalidOperand);
+                Console.WriteLine("Nested Function: " + nestedFunctionName + " doesn't exist.");
                 return;
             }
 
-            var newFunction = new LogicFunction(name, expression, inputSplit[0]);
+            var newFunction = new LogicFunction(name, expression, inputSplit[0], tokens);
             newFunction.AddNestedFunction(nestedFunction);
             userFunctions.Add(newFunction);
         }
