@@ -69,7 +69,7 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void AddFunction(string input)
         {
             //DEFINE func2(a,b,c,d): (func1(a,b) || c) && d
-            //DEFINE func5(a,b,c,d): (a || func1(b,c)) && d
+            //DEFINE func5(a,b,c,d): func1(a,b) && func4(c,d)
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
@@ -91,7 +91,9 @@ namespace LogicalExpressionInterpreter.LogicControl
             string nestedFunctionName = "";
 
             bool definedFunction = false;
-            LogicFunction nestedFunction = new();
+            int literalCount = 0;
+            List<LogicFunction> nestedFunctions = new();
+
             for (int i = 0; i < tokens.Count; i++)
             {
                 if (tokens[i].Type == Token.TokenType.NESTED_FUNCTION)
@@ -99,19 +101,19 @@ namespace LogicalExpressionInterpreter.LogicControl
                     var spl = Utility.Split(tokens[i].Value, '(');
                     nestedFunctionName = spl[0];
                     nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
+                    literalCount += nestedFunctionOperands.Length;
 
                     for (int k = 0; k < userFunctions.Count; k++)
                     {
                         if (userFunctions[k].GetName() == nestedFunctionName)
                         {
                             definedFunction = true;
-                            nestedFunction = userFunctions[k];
+                            nestedFunctions.Add(userFunctions[k]);
                         }
                     }
                 }
             }
 
-            int literalCount = 0;
             for (int i = 0; i < tokens.Count; i++)
             {
                 if (tokens[i].Type == Token.TokenType.LITERAL)
@@ -119,8 +121,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     literalCount++;
                 }
             }
-            literalCount += nestedFunctionOperands.Length;
-
+            
             if (literalCount != operands.Length)
             {
                 Console.WriteLine("Invalid number of operands.");
@@ -133,7 +134,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             var newFunction = new LogicFunction(name, expression, inputSplit[0], tokens);
-            newFunction.AddNestedFunction(nestedFunction);
+            newFunction.SetNestedFunctions(nestedFunctions);
             userFunctions.Add(newFunction);
         }
 

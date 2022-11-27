@@ -95,6 +95,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             return NestedFunctions;
         }
 
+        public void SetNestedFunctions(List<LogicFunction> nestedFunctions)
+        {
+            NestedFunctions = nestedFunctions;
+        }
+
         public string GetNestedFunctionsNames()
         {
             string names = "";

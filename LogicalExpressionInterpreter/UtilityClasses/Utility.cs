@@ -338,5 +338,17 @@
 
             return boolValues;
         }
+
+        public static ObjectStack<string[]> ReverseStack(ObjectStack<string[]> values)
+        {
+            ObjectStack<string[]> reversed = new();
+
+            while (values.Count() != 0)
+            {
+                reversed.Push(values.Pop());
+            }
+
+            return reversed;
+        }
     }
 }
