@@ -35,7 +35,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     {
                         continue;
                     }
-                    if (Utility.TrimStart(Utility.Split(input, ' ')[0], ' ').ToUpper() != "FIND" && (lineCounter == 1))
+                    if (Utility.ToUpper(Utility.TrimStart(Utility.Split(input, ' ')[0], ' '))!= "FIND" && (lineCounter == 1))
                     {
                         inputLines.Add(input);
                         break;
@@ -50,7 +50,13 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
                 var inputSplit = Utility.Split(inputLines[0], ' ', 2);
 
-                switch (inputSplit[0].ToUpper())
+                if (Utility.StringIsNullOrEmpty(inputSplit[1]))
+                {
+                    Console.WriteLine("Invalid Command.");
+                    continue;
+                }
+
+                switch (Utility.ToUpper(inputSplit[0]))
                 {
                     case "DEFINE": AddFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
                     case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;

@@ -2,8 +2,6 @@
 {
     public class Utility
     {
-        public static string Alphabet = "abcdefghijklmnopqrstuvwxyz";
-
         public static string[] Split(string input, char separator)
         {
             int counter = 1;
@@ -296,6 +294,30 @@
             }
 
             return trimmedString;
+        }
+
+        public static string ToUpper(string input)
+        {
+            string upper = "";
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] >= 'a' && input[i] <= 'z')
+                {
+                    upper += Convert.ToChar(input[i] - 32);
+                }
+            }
+
+            return upper;
+        }
+
+        public static bool StringIsNullOrEmpty(string input)
+        {
+            if(input == "" || input == " " || input == null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static int GetCountOf(string input, char c) 
