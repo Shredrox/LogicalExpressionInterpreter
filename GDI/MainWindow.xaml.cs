@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.LogicControl;
@@ -15,7 +16,7 @@ namespace GDI
 {
     public partial class MainWindow : Window
     {
-        private List<LogicFunction> userFunctions = new();
+        private static List<LogicFunction> userFunctions = new();
         private string path = "../../../../LogicalExpressionInterpreter/bin/UserFunctions.txt";
 
         public MainWindow()
@@ -206,7 +207,7 @@ namespace GDI
             TextDisplay.Inlines.Add("Result: " + result);
         }
 
-        public LogicFunction? ChooseFunction(string name)
+        public static LogicFunction? ChooseFunction(string name)
         {
             for (int i = 0; i < userFunctions.Count; i++)
             {
@@ -398,6 +399,41 @@ namespace GDI
             return null;
         }
 
+        public static Node CreateTree(List<Token> tokens)
+        {
+            ObjectStack<Node> nodes = new();
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                switch (tokens[i].Type)
+                {
+                    case Token.TokenType.NESTED_FUNCTION:
+                        {
+                            var nestedFunction = ChooseFunction(Utility.Split(tokens[i].Value, '(')[0]);
+                            var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()));
+                            nodes.Push(nestedNode);
+                            break;
+                        }
+                    case Token.TokenType.LITERAL: nodes.Push(new Node(tokens[i].Value)); break;
+                    case Token.TokenType.NOT:
+                        {
+                            Node left = nodes.Pop();
+                            nodes.Push(new Node(tokens[i].Value, left));
+                            break;
+                        }
+                    default:
+                        {
+                            Node left = nodes.Pop();
+                            Node right = nodes.Pop();
+                            nodes.Push(new Node(tokens[i].Value, left, right));
+                            break;
+                        }
+                }
+            }
+
+            return nodes.Pop();
+        }
+
         private void DisplayTree(string functionName)
         {
             TreeCanvas.Children.Clear();
@@ -412,30 +448,32 @@ namespace GDI
             var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
             var postfixTokens = Parser.ConvertToPostfix(tokens);
 
-            Node root = Tree.CreateTree(postfixTokens, null);
+            Node root = CreateTree(postfixTokens);
 
             int leftOffset = 0;
             int rightOffset = 0;
             AddNodeToCanvas(root, 0);
 
-            Node? l = root.GetLeft();
-            Node? r = root.GetRight();
-            while(l != null || r != null) 
+            Node? left = root.GetLeft();
+            Node? right = root.GetRight();
+            while (left != null || right != null)
             {
-                AddNodeToCanvas(l, leftOffset += 100);
-                if(l != null)
+                AddNodeToCanvas(left, leftOffset += 50);
+                if (left != null)
                 {
-                    l = l.GetLeft();
+                    left = left.GetLeft();
                 }
-                
-                AddNodeToCanvas(r, rightOffset -= 100);
-                if(r != null)
+
+                AddNodeToCanvas(right, rightOffset -= 50);
+                if (right != null)
                 {
-                    r = r.GetRight();
+                    right = right.GetRight();
                 }
             }
         }
 
+        int leftOffset = 0;
+        int rightOffset = 0;
         private void AddNodeToCanvas(Node? root, double offset)
         {
             if(root == null)
@@ -462,6 +500,37 @@ namespace GDI
             container.Children.Add(new TextBlock() { Text = root.GetValue() });
 
             TreeCanvas.Children.Add(container);
+        }
+
+        private void AddNodeToCanvas2(Node? root, double offset)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            var ellipse = new Ellipse();
+            ellipse.Height = 40;
+            ellipse.Width = 40;
+            ellipse.Margin = new Thickness(-ellipse.Height / 2);
+            ellipse.Fill = Brushes.Yellow;
+
+            Grid container = new Grid();
+            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + offset);
+
+            var yOffest = 50d + offset;
+            if (offset < 0)
+            {
+                yOffest += -offset * 2;
+            }
+            container.SetValue(Canvas.TopProperty, yOffest);
+            container.Children.Add(ellipse);
+            container.Children.Add(new TextBlock() { Text = root.GetValue() });
+
+            TreeCanvas.Children.Add(container);
+
+            AddNodeToCanvas(root.GetLeft(), leftOffset += 100);
+            AddNodeToCanvas(root.GetRight(), rightOffset -= 100);
         }
 
         private void CommandInput_PreviewKeyDown(object sender, KeyEventArgs e)

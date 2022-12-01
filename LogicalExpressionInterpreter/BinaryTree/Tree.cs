@@ -39,7 +39,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
 
         private static ObjectStack<string[]> nestedBooleans = new();
         private static List<string> bools = new();
-        private static void FillTree(List<Token> tokens, string[] boolValues)
+        private static void FillTree(List<Token> tokens, string[]? boolValues)
         {
             if(boolValues == null)
             {
@@ -116,6 +116,19 @@ namespace LogicalExpressionInterpreter.BinaryTree
             }
 
             return nodes.Pop();
+        }
+
+        public static int TreeDepth(Node root)
+        {
+            if (root == null)
+            {
+                return 0;
+            }
+
+            int left = TreeDepth(root.GetLeft());
+            int right = TreeDepth(root.GetRight());
+
+            return Math.Max(left, right) + 1;
         }
     }
 }
