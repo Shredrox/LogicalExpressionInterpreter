@@ -12,8 +12,9 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="LogicalExpressionInterpreter" Height="450" Width="800"
-        Background="#FF1D190A">
+        Title="LogicalExpressionInterpreter" Height="800" Width="600"
+        Background="#FF1D190A" WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
     
     <Grid>
         <StackPanel x:Name="MainPanel">
@@ -23,15 +24,20 @@
                 Background="#FF7B3B3B"
                 Foreground="White"
                 Margin="20" 
-                Height="30"/>
+                Height="100"
+                TextWrapping="Wrap"
+                AcceptsReturn="True"
+                VerticalScrollBarVisibility="Auto"
+                PreviewKeyDown="CommandInput_PreviewKeyDown"/>
 
-            <TextBlock
-                Name="TextDisplay"
-                Background="Gray"
-                Margin="20,5,20,20"
-                Height="30"
-                Width="100"/>
-            
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,0,10,0">
+                <TextBlock
+                    Name="TextDisplay"
+                    Background="Gray"
+                    Margin="20,5,20,20"
+                    Height="300"
+                    Width="500"/>
+            </ScrollViewer>
         </StackPanel>
     </Grid>
 </Window>
