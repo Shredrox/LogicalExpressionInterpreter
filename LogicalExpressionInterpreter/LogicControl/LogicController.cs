@@ -15,12 +15,6 @@ namespace LogicalExpressionInterpreter.LogicControl
                 userFunctions = DataControl.LoadFromFile("../../UserFunctions.txt");
             }
 
-            //string input1 = "(((( a || b ) && c ) || ( d && p ) ) && e ) && ( f || g )";
-            //string e = "(a && b) || (c && ((d || e) && f))";
-            //string e2 = "a && ( !( b || c ) || d ) && e";
-            //string e3 = "a || ((b || c) && d)";
-            //string e3 = "a && b";
-
             while (true)
             {
                 Console.WriteLine("Enter command: ");
@@ -50,7 +44,9 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
                 var inputSplit = Utility.Split(inputLines[0], ' ', 2);
 
-                if (Utility.StringIsNullOrEmpty(inputSplit[1]))
+                if (Utility.StringIsNullOrEmpty(inputSplit[1]) 
+                    && Utility.ToUpper(inputSplit[0]) != "PRINTALL"
+                    && Utility.ToUpper(inputSplit[0]) != "EXIT")
                 {
                     Console.WriteLine("Invalid Command.");
                     continue;
@@ -74,8 +70,6 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void AddFunction(string input)
         {
-            //DEFINE func2(a,b,c,d): (func1(a,b) || c) && d
-            //DEFINE func5(a,b,c,d): func1(a,b) && func4(c,d)
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
@@ -96,7 +90,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             string[] nestedFunctionOperands;
             string nestedFunctionName = "";
 
-            bool definedFunction = false;
+            bool hasNestedFunction = false;
             int literalCount = 0;
             List<LogicFunction> nestedFunctions = new();
 
@@ -104,6 +98,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 if (tokens[i].Type == Token.TokenType.NESTED_FUNCTION)
                 {
+                    hasNestedFunction = true;
                     var spl = Utility.Split(tokens[i].Value, '(');
                     nestedFunctionName = spl[0];
                     nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
@@ -113,7 +108,6 @@ namespace LogicalExpressionInterpreter.LogicControl
                     {
                         if (userFunctions[k].GetName() == nestedFunctionName)
                         {
-                            definedFunction = true;
                             nestedFunctions.Add(userFunctions[k]);
                         }
                     }
@@ -133,7 +127,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 Console.WriteLine("Invalid number of operands.");
                 return;
             }
-            else if (!definedFunction)
+            else if (hasNestedFunction && nestedFunctions.Count == 0)
             {
                 Console.WriteLine("Nested Function: " + nestedFunctionName + " doesn't exist.");
                 return;
