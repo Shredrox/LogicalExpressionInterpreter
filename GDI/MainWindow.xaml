@@ -12,32 +12,78 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="LogicalExpressionInterpreter" Height="800" Width="600"
+        Title="LogicalExpressionInterpreter" Height="800" Width="1200"
         Background="#FF1D190A" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize">
-    
+
     <Grid>
-        <StackPanel x:Name="MainPanel">
-            
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="800"/>
+        </Grid.ColumnDefinitions>
+        
+        <StackPanel 
+            x:Name="MainPanel"
+            Grid.Column="0">
+
+            <TextBlock 
+                Name="HeaderText" 
+                Text="Logic Exrpession Interpreter"
+                Foreground="White"
+                HorizontalAlignment="Center"
+                FontSize="25"
+                Margin="0,20,0,0"/>
+
+            <TextBlock 
+                Name="CommandText" 
+                Text="Enter Command: "
+                Foreground="White"
+                HorizontalAlignment="Left"
+                FontSize="15"
+                Margin="20,0,0,5"/>
+
             <TextBox 
                 Name="CommandInput" 
                 Background="#FF7B3B3B"
                 Foreground="White"
-                Margin="20" 
+                FontSize="20"
+                Margin="20,0,20,20" 
                 Height="100"
                 TextWrapping="Wrap"
                 AcceptsReturn="True"
                 VerticalScrollBarVisibility="Auto"
                 PreviewKeyDown="CommandInput_PreviewKeyDown"/>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,0,10,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <TextBlock
                     Name="TextDisplay"
-                    Background="Gray"
-                    Margin="20,5,20,20"
+                    Foreground="White"
+                    Padding="20"
                     Height="300"
-                    Width="500"/>
+                    Width="350">
+                    <TextBlock.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF120B0B" Offset="0.008"/>
+                            <GradientStop Color="#FF2D1313" Offset="1"/>
+                        </LinearGradientBrush>
+                    </TextBlock.Background>
+                </TextBlock>
             </ScrollViewer>
         </StackPanel>
+
+        <Canvas 
+            x:Name="TreeCanvas"
+            Width="750"
+            Height="750"
+            Grid.Column="1"
+            Margin="5">
+            <Canvas.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black"/>
+                    <GradientStop Color="#FF381818" Offset="1"/>
+                </LinearGradientBrush>
+            </Canvas.Background>
+
+        </Canvas>
     </Grid>
 </Window>

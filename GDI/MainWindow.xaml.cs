@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.LogicControl;
 using LogicalExpressionInterpreter.Parsing;
@@ -46,6 +49,7 @@ namespace GDI
                 case "PRINTALL": PrintFunctions(); break;
                 case "SOLVE": SolveFunction(inputSplit[1]); break;
                 case "ALL": CreateTruthTable(inputSplit[1]); break;
+                case "DISPLAY": DisplayTree(inputSplit[1]); break;  
                 case "FIND": //FindFunction(inputSplit[1]); break;
                     break;
                 case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
@@ -305,7 +309,7 @@ namespace GDI
             input[0] = splitLine[1];
             string parameter = splitLine[1];
 
-            if (Path.HasExtension(parameter))
+            if (System.IO.Path.HasExtension(parameter))
             {
                 if (!File.Exists(parameter))
                 {
@@ -394,11 +398,78 @@ namespace GDI
             return null;
         }
 
+        private void DisplayTree(string functionName)
+        {
+            TreeCanvas.Children.Clear();
+
+            var chosenFunction = ChooseFunction(functionName);
+            if (chosenFunction == null)
+            {
+                MessageBox.Show("This function doesn't exist.");
+                return;
+            }
+
+            var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
+            var postfixTokens = Parser.ConvertToPostfix(tokens);
+
+            Node root = Tree.CreateTree(postfixTokens, null);
+
+            int leftOffset = 0;
+            int rightOffset = 0;
+            AddNodeToCanvas(root, 0);
+
+            Node? l = root.GetLeft();
+            Node? r = root.GetRight();
+            while(l != null || r != null) 
+            {
+                AddNodeToCanvas(l, leftOffset += 100);
+                if(l != null)
+                {
+                    l = l.GetLeft();
+                }
+                
+                AddNodeToCanvas(r, rightOffset -= 100);
+                if(r != null)
+                {
+                    r = r.GetRight();
+                }
+            }
+        }
+
+        private void AddNodeToCanvas(Node? root, double offset)
+        {
+            if(root == null)
+            {
+                return;
+            }
+
+            var ellipse = new Ellipse();
+            ellipse.Height = 40;
+            ellipse.Width = 40;
+            ellipse.Margin = new Thickness(-ellipse.Height / 2);
+            ellipse.Fill = Brushes.Yellow;
+
+            Grid container = new Grid();
+            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + offset);
+
+            var yOffest = 50d + offset;
+            if (offset < 0)
+            {
+                yOffest += -offset * 2;
+            }
+            container.SetValue(Canvas.TopProperty, yOffest);
+            container.Children.Add(ellipse);
+            container.Children.Add(new TextBlock() { Text = root.GetValue() });
+
+            TreeCanvas.Children.Add(container);
+        }
+
         private void CommandInput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
             {
-                string[] split = Utility.Split(CommandInput.Text, '\r');
+                string input = Utility.TrimEnd(CommandInput.Text, '\n');
+                string[] split = Utility.Split(input, '\r');
 
                 for (int i = 0; i < split.Length; i++)
                 {

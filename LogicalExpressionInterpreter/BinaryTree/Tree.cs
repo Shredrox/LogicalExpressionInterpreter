@@ -41,6 +41,11 @@ namespace LogicalExpressionInterpreter.BinaryTree
         private static List<string> bools = new();
         private static void FillTree(List<Token> tokens, string[] boolValues)
         {
+            if(boolValues == null)
+            {
+                return;
+            }
+
             int index = 0;
 
             for (int i = 0; i < tokens.Count; i++)
@@ -67,7 +72,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
             bools.Clear();
         }
 
-        public static Node CreateTree(List<Token> tokens, string[] boolValues)
+        public static Node CreateTree(List<Token> tokens, string[]? boolValues)
         {
             FillTree(tokens, boolValues);
             ObjectStack<Node> nodes = new();
