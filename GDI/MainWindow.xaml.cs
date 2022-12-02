@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
+using System.Xml;
 using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.LogicControl;
 using LogicalExpressionInterpreter.Parsing;
@@ -435,6 +436,7 @@ namespace GDI
         }
 
         private double heightDivide;
+        private double widthDivide;
         private void DisplayTree(string functionName)
         {
             TreeCanvas.Children.Clear();
@@ -452,16 +454,18 @@ namespace GDI
             Node root = CreateTree(postfixTokens);
 
             var depth = Tree.TreeDepth(root);
+            var width = depth + 2;
             heightDivide = TreeCanvas.ActualHeight / depth / 2;
+            widthDivide = 100;
 
-            AddNodeToCanvas(root, 0, heightDivide, 1);
+            AddNodeToCanvas(root, 0, heightDivide, 1, 0);
         }
 
-        private void AddNodeToCanvas(Node? root, double xOffset, double yOffset, double xDivider)
+        private void AddNodeToCanvas(Node? root, double xOffset, double yOffset, double xDivider, int nodePos)
         {
             if (root.GetLeft() != null)
             {
-                AddNodeToCanvas(root.GetLeft(), xOffset + 100 / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.5d);
+                AddNodeToCanvas(root.GetLeft(), xOffset + widthDivide, yOffset + heightDivide * 2, xDivider * 1.2d, 2);
             }
 
             var ellipse = new Ellipse();
@@ -471,16 +475,39 @@ namespace GDI
             ellipse.Fill = Brushes.Yellow;
 
             Grid container = new Grid();
-            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + xOffset);
+            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + (xOffset / xDivider));
             container.SetValue(Canvas.TopProperty, yOffset);
             container.Children.Add(ellipse);
             container.Children.Add(new TextBlock() { Text = root.GetValue() });
 
+            Line line = new Line();
+            line.X1 = Convert.ToDouble(container.GetValue(LeftProperty));
+            line.Y1 = Convert.ToDouble(container.GetValue(TopProperty));
+
+            if (nodePos == 1)
+            {
+                line.X2 = line.X1 + (widthDivide / xDivider);
+            }
+            else if(nodePos == 2)
+            {
+                line.X2 = line.X1 - (widthDivide / xDivider);
+            }
+
+            line.Y2 = line.Y1 - heightDivide * 2 + 10;
+            if (nodePos == 0)
+            {
+                line.X2 = line.X1;
+                line.Y2 = line.Y1;
+            }
+
+            line.Stroke = Brushes.Yellow;
+
             TreeCanvas.Children.Add(container);
+            TreeCanvas.Children.Add(line);
 
             if (root.GetRight() != null)
             {
-                AddNodeToCanvas(root.GetRight(), xOffset - 100 / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.5d);
+                AddNodeToCanvas(root.GetRight(), xOffset - widthDivide, yOffset + heightDivide * 2, xDivider * 1.2d, 1);
             }
         }
 
