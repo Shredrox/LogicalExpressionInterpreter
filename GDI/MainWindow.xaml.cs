@@ -434,6 +434,7 @@ namespace GDI
             return nodes.Pop();
         }
 
+        private double heightDivide;
         private void DisplayTree(string functionName)
         {
             TreeCanvas.Children.Clear();
@@ -450,35 +451,17 @@ namespace GDI
 
             Node root = CreateTree(postfixTokens);
 
-            int leftOffset = 0;
-            int rightOffset = 0;
-            AddNodeToCanvas(root, 0);
+            var depth = Tree.TreeDepth(root);
+            heightDivide = TreeCanvas.ActualHeight / depth / 2;
 
-            Node? left = root.GetLeft();
-            Node? right = root.GetRight();
-            while (left != null || right != null)
-            {
-                AddNodeToCanvas(left, leftOffset += 50);
-                if (left != null)
-                {
-                    left = left.GetLeft();
-                }
-
-                AddNodeToCanvas(right, rightOffset -= 50);
-                if (right != null)
-                {
-                    right = right.GetRight();
-                }
-            }
+            AddNodeToCanvas(root, 0, heightDivide, 1);
         }
 
-        int leftOffset = 0;
-        int rightOffset = 0;
-        private void AddNodeToCanvas(Node? root, double offset)
+        private void AddNodeToCanvas(Node? root, double xOffset, double yOffset, double xDivider)
         {
-            if(root == null)
+            if (root.GetLeft() != null)
             {
-                return;
+                AddNodeToCanvas(root.GetLeft(), xOffset + 100 / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.5d);
             }
 
             var ellipse = new Ellipse();
@@ -488,51 +471,20 @@ namespace GDI
             ellipse.Fill = Brushes.Yellow;
 
             Grid container = new Grid();
-            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + offset);
-
-            var yOffest = 50d + offset;
-            if (offset < 0)
-            {
-                yOffest += -offset * 2;
-            }
-            container.SetValue(Canvas.TopProperty, yOffest);
-            container.Children.Add(ellipse);
-            container.Children.Add(new TextBlock() { Text = root.GetValue() });
-
-            TreeCanvas.Children.Add(container);
-        }
-
-        private void AddNodeToCanvas2(Node? root, double offset)
-        {
-            if (root == null)
-            {
-                return;
-            }
-
-            var ellipse = new Ellipse();
-            ellipse.Height = 40;
-            ellipse.Width = 40;
-            ellipse.Margin = new Thickness(-ellipse.Height / 2);
-            ellipse.Fill = Brushes.Yellow;
-
-            Grid container = new Grid();
-            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + offset);
-
-            var yOffest = 50d + offset;
-            if (offset < 0)
-            {
-                yOffest += -offset * 2;
-            }
-            container.SetValue(Canvas.TopProperty, yOffest);
+            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + xOffset);
+            container.SetValue(Canvas.TopProperty, yOffset);
             container.Children.Add(ellipse);
             container.Children.Add(new TextBlock() { Text = root.GetValue() });
 
             TreeCanvas.Children.Add(container);
 
-            AddNodeToCanvas(root.GetLeft(), leftOffset += 100);
-            AddNodeToCanvas(root.GetRight(), rightOffset -= 100);
+            if (root.GetRight() != null)
+            {
+                AddNodeToCanvas(root.GetRight(), xOffset - 100 / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.5d);
+            }
         }
 
+        //Window functions
         private void CommandInput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
@@ -547,6 +499,21 @@ namespace GDI
 
                 ProcessInput(split[split.Length - 1]);
             }
+        }
+
+        private void Card_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

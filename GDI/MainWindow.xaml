@@ -12,35 +12,81 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="LogicalExpressionInterpreter" Height="800" Width="1200"
+        Title="LogicalExpressionInterpreter" Height="850" Width="1200"
         Background="#FF1D190A" WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize" WindowStyle="None">
 
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400"/>
             <ColumnDefinition Width="800"/>
         </Grid.ColumnDefinitions>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="800"/>
+        </Grid.RowDefinitions>
+
+        <materialDesign:Card 
+            Grid.Row="0"
+            Grid.ColumnSpan="2"
+            Height="50"
+            Background="#FF12100D"
+            MouseDown="Card_MouseDown">
+
+            <Grid>
+                <TextBlock 
+                    Text="Logic Exrpession Interpreter"
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    FontSize="25"
+                    Margin="10"/>
+
+                <StackPanel 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Grid.Column="1">
+                    
+                    <Button 
+                        Content="_"  
+                        Name="MinimizeButton"
+                        Click="MinimizeButton_Click"
+                        Width="35"
+                        Height="25"
+                        Padding="0"
+                        Margin="360 0 10 0"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}"/>
+
+                    <Button 
+                        Content="X"  
+                        Name="CloseButton"
+                        Click="CloseButton_Click"
+                        Width="35"
+                        Height="25"
+                        Padding="0"
+                        Margin="0 0 10 0"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}"/>
+
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
         <StackPanel 
             x:Name="MainPanel"
-            Grid.Column="0">
-
-            <TextBlock 
-                Name="HeaderText" 
-                Text="Logic Exrpession Interpreter"
-                Foreground="White"
-                HorizontalAlignment="Center"
-                FontSize="25"
-                Margin="0,20,0,0"/>
+            Grid.Column="0"
+            Grid.Row="1"
+            Margin="10,0,10,27">
 
             <TextBlock 
                 Name="CommandText" 
                 Text="Enter Command: "
                 Foreground="White"
                 HorizontalAlignment="Left"
-                FontSize="15"
-                Margin="20,0,0,5"/>
+                FontSize="25"
+                Margin="20"/>
 
             <TextBox 
                 Name="CommandInput" 
@@ -76,6 +122,7 @@
             Width="750"
             Height="750"
             Grid.Column="1"
+            Grid.Row="1"
             Margin="5">
             <Canvas.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
