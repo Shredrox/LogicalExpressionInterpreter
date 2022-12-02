@@ -454,7 +454,7 @@ namespace GDI
             Node root = CreateTree(postfixTokens);
 
             var depth = Tree.TreeDepth(root);
-            var width = depth + 2;
+            var width = depth * 2;
             heightDivide = TreeCanvas.ActualHeight / depth / 2;
             widthDivide = 100;
 
@@ -469,18 +469,18 @@ namespace GDI
             }
 
             var ellipse = new Ellipse();
-            ellipse.Height = 40;
-            ellipse.Width = 40;
+            ellipse.Height = 30;
+            ellipse.Width = 30;
             ellipse.Margin = new Thickness(-ellipse.Height / 2);
             ellipse.Fill = Brushes.Yellow;
 
-            Grid container = new Grid();
+            Grid container = new();
             container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + (xOffset / xDivider));
             container.SetValue(Canvas.TopProperty, yOffset);
             container.Children.Add(ellipse);
             container.Children.Add(new TextBlock() { Text = root.GetValue() });
 
-            Line line = new Line();
+            Line line = new();
             line.X1 = Convert.ToDouble(container.GetValue(LeftProperty));
             line.Y1 = Convert.ToDouble(container.GetValue(TopProperty));
 

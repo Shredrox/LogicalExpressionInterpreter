@@ -304,7 +304,10 @@
                 if (input[i] >= 'a' && input[i] <= 'z')
                 {
                     upper += Convert.ToChar(input[i] - 32);
+                    continue;
                 }
+
+                upper += input[i];
             }
 
             return upper;
