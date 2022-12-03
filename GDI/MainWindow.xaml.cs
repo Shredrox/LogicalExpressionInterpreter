@@ -454,7 +454,6 @@ namespace GDI
             Node root = CreateTree(postfixTokens);
 
             var depth = Tree.TreeDepth(root);
-            var width = depth * 2;
             heightDivide = TreeCanvas.ActualHeight / depth / 2;
             widthDivide = 100;
 
@@ -465,7 +464,7 @@ namespace GDI
         {
             if (root.GetLeft() != null)
             {
-                AddNodeToCanvas(root.GetLeft(), xOffset + widthDivide, yOffset + heightDivide * 2, xDivider * 1.2d, 2);
+                AddNodeToCanvas(root.GetLeft(), xOffset + widthDivide / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.3d, 2);
             }
 
             var ellipse = new Ellipse();
@@ -475,25 +474,26 @@ namespace GDI
             ellipse.Fill = Brushes.Yellow;
 
             Grid container = new();
-            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + (xOffset / xDivider));
+            container.SetValue(Canvas.LeftProperty, TreeCanvas.Width / 2 + (xOffset));
             container.SetValue(Canvas.TopProperty, yOffset);
+            container.SetValue(Canvas.ZIndexProperty, 2);
             container.Children.Add(ellipse);
             container.Children.Add(new TextBlock() { Text = root.GetValue() });
 
             Line line = new();
-            line.X1 = Convert.ToDouble(container.GetValue(LeftProperty));
-            line.Y1 = Convert.ToDouble(container.GetValue(TopProperty));
+            line.X1 = Math.Round(Convert.ToDouble(container.GetValue(LeftProperty)));
+            line.Y1 = Math.Round(Convert.ToDouble(container.GetValue(TopProperty)));
 
             if (nodePos == 1)
             {
-                line.X2 = line.X1 + (widthDivide / xDivider);
+                line.X2 = Math.Round(line.X1 + (widthDivide / xDivider) + 5);
             }
             else if(nodePos == 2)
             {
-                line.X2 = line.X1 - (widthDivide / xDivider);
+                line.X2 = Math.Round(line.X1 - (widthDivide / xDivider) + 5);
             }
 
-            line.Y2 = line.Y1 - heightDivide * 2 + 10;
+            line.Y2 = line.Y1 - heightDivide * 2;
             if (nodePos == 0)
             {
                 line.X2 = line.X1;
@@ -507,7 +507,7 @@ namespace GDI
 
             if (root.GetRight() != null)
             {
-                AddNodeToCanvas(root.GetRight(), xOffset - widthDivide, yOffset + heightDivide * 2, xDivider * 1.2d, 1);
+                AddNodeToCanvas(root.GetRight(), xOffset - widthDivide / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.3d, 1);
             }
         }
 
