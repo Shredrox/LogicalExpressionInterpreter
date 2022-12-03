@@ -23,11 +23,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static void SetUserFunctions(List<LogicFunction> functions)
-        {
-            userFunctions = functions;
-        }
-
         public static bool FunctionExists(string name)
         {
             for (int i = 0; i < userFunctions.Count; i++)

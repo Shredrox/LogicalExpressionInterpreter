@@ -29,7 +29,8 @@ namespace GDI
 
             if (Utility.StringIsNullOrEmpty(inputSplit[1])
                     && Utility.ToUpper(inputSplit[0]) != "PRINTALL"
-                    && Utility.ToUpper(inputSplit[0]) != "EXIT")
+                    && Utility.ToUpper(inputSplit[0]) != "EXIT"
+                    && Utility.ToUpper(inputSplit[0]) != "HELP")
             {
                 MessageBox.Show("Invalid Command.");
                 return;
@@ -43,11 +44,23 @@ namespace GDI
                 case "SOLVE": SolveFunction(inputSplit[1]); break;
                 case "ALL": CreateTruthTable(inputSplit[1]); break;
                 case "DISPLAY": DisplayTree(inputSplit[1]); break;  
-                case "FIND": //FindFunction(inputSplit[1]); break;
-                    break;
+                case "FIND": break; //FindFunction(inputSplit[1]);
+                case "HELP": PrintCommands(); break;
                 case "EXIT": LogicController.SaveFunctions(); this.Close(); return;
                 default: MessageBox.Show("Invalid Command."); break;
             }
+        }
+
+        public void PrintCommands()
+        {
+            TextDisplay.Inlines.Add("DEFINE - defines a function\n");
+            TextDisplay.Inlines.Add("REMOVE - removes a function\n");
+            TextDisplay.Inlines.Add("SOLVE - solves a function with given bool parameters\n");
+            TextDisplay.Inlines.Add("ALL - creates a truth table for a function\n");
+            TextDisplay.Inlines.Add("FIND - finds a function from a given truth table\n");
+            TextDisplay.Inlines.Add("PRINTALL - prints all functions\n");
+            TextDisplay.Inlines.Add("DISPLAY - displays function binary tree\n");
+            TextDisplay.Inlines.Add("EXIT - closes the program\n");
         }
 
         public void AddFunction(string input)
