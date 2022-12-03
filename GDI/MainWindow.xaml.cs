@@ -5,9 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using System.Xml;
 using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.LogicControl;
 using LogicalExpressionInterpreter.Parsing;
@@ -483,21 +481,13 @@ namespace GDI
             Line line = new();
             line.X1 = Math.Round(Convert.ToDouble(container.GetValue(LeftProperty)));
             line.Y1 = Math.Round(Convert.ToDouble(container.GetValue(TopProperty)));
-
-            if (nodePos == 1)
-            {
-                line.X2 = Math.Round(line.X1 + (widthDivide / xDivider) + 5);
-            }
-            else if(nodePos == 2)
-            {
-                line.X2 = Math.Round(line.X1 - (widthDivide / xDivider) + 5);
-            }
-
             line.Y2 = line.Y1 - heightDivide * 2;
-            if (nodePos == 0)
+
+            switch (nodePos)
             {
-                line.X2 = line.X1;
-                line.Y2 = line.Y1;
+                case 0: line.X2 = line.X1; line.Y2 = line.Y1; break;
+                case 1: line.X2 = Math.Round(line.X1 + (widthDivide / xDivider) + 5); break;
+                case 2: line.X2 = Math.Round(line.X1 - (widthDivide / xDivider) + 5); break;
             }
 
             line.Stroke = Brushes.Yellow;
@@ -518,6 +508,11 @@ namespace GDI
             {
                 string input = Utility.TrimEnd(CommandInput.Text, '\n');
                 string[] split = Utility.Split(input, '\r');
+
+                if (split[split.Length-1] == null)
+                {
+                    return;
+                }
 
                 for (int i = 0; i < split.Length; i++)
                 {
