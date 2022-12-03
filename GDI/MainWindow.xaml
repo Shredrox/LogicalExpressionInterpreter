@@ -78,7 +78,7 @@
             x:Name="MainPanel"
             Grid.Column="0"
             Grid.Row="1"
-            Margin="10,0,10,27">
+            Margin="10,0,0,27">
 
             <TextBlock 
                 Name="CommandText" 
@@ -106,7 +106,7 @@
                     Foreground="White"
                     Padding="20"
                     Height="300"
-                    Width="350">
+                    Width="380">
                     <TextBlock.Background>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF120B0B" Offset="0.008"/>

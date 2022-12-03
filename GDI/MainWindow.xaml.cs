@@ -15,17 +15,10 @@ namespace GDI
 {
     public partial class MainWindow : Window
     {
-        private static List<LogicFunction> userFunctions = new();
-        private string path = "../../../../LogicalExpressionInterpreter/bin/UserFunctions.txt";
-
         public MainWindow()
         {
             InitializeComponent();
-
-            if (File.Exists(path))
-            {
-                userFunctions = DataControl.LoadFromFile(path);
-            }
+            LogicController.LoadFunctions();
         }
 
         public void ProcessInput(string input)
@@ -44,15 +37,15 @@ namespace GDI
 
             switch (Utility.ToUpper(inputSplit[0]))
             {
-                case "DEFINE": AddFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, path); break;
-                case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, path); break;
+                case "DEFINE": AddFunction(inputSplit[1]); LogicController.SaveFunctions(); break;
+                case "REMOVE": LogicController.RemoveFunction(inputSplit[1]); LogicController.SaveFunctions(); break;
                 case "PRINTALL": PrintFunctions(); break;
                 case "SOLVE": SolveFunction(inputSplit[1]); break;
                 case "ALL": CreateTruthTable(inputSplit[1]); break;
                 case "DISPLAY": DisplayTree(inputSplit[1]); break;  
                 case "FIND": //FindFunction(inputSplit[1]); break;
                     break;
-                case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
+                case "EXIT": LogicController.SaveFunctions(); this.Close(); return;
                 default: MessageBox.Show("Invalid Command."); break;
             }
         }
@@ -65,13 +58,10 @@ namespace GDI
 
             var tokens = Tokenizer.Tokenize(inputSplit[1]);
 
-            for (int i = 0; i < userFunctions.Count; i++)
+            if(LogicController.FunctionExists(name))
             {
-                if (userFunctions[i].GetName() == name)
-                {
-                    MessageBox.Show("A function with this name already exists.");
-                    return;
-                }
+                MessageBox.Show("A function with this name already exists.");
+                return;
             }
 
             string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
@@ -93,12 +83,9 @@ namespace GDI
                     nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
                     literalCount += nestedFunctionOperands.Length;
 
-                    for (int k = 0; k < userFunctions.Count; k++)
+                    if(LogicController.ChooseFunction(nestedFunctionName) != null)
                     {
-                        if (userFunctions[k].GetName() == nestedFunctionName)
-                        {
-                            nestedFunctions.Add(userFunctions[k]);
-                        }
+                        nestedFunctions.Add(LogicController.ChooseFunction(nestedFunctionName));
                     }
                 }
             }
@@ -124,23 +111,12 @@ namespace GDI
 
             var newFunction = new LogicFunction(name, expression, inputSplit[0], tokens);
             newFunction.SetNestedFunctions(nestedFunctions);
-            userFunctions.Add(newFunction);
-        }
-
-        public void RemoveFunction(string input)
-        {
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetName() == input)
-                {
-                    userFunctions.RemoveAt(i);
-                }
-            }
+            LogicController.AddUserFunction(newFunction);
         }
 
         public void PrintFunctions()
         {
-            if (userFunctions.Count == 0)
+            if(LogicController.GetFunctionCount() == 0)
             {
                 MessageBox.Show("No added functions.");
                 return;
@@ -149,27 +125,18 @@ namespace GDI
             TextDisplay.Inlines.Add("Current Functions: ");
             TextDisplay.Inlines.Add("\n");
 
-            string line;
+            var info = LogicController.GetFunctionsInfo();
 
-            for (int i = 0; i < userFunctions.Count; i++)
+            for (int i = 0; i < info.Count; i++)
             {
-                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
-                if (userFunctions[i].GetNestedFunctions().Count != 0)
-                {
-                    line = i + 1 + ". "
-                        + userFunctions[i].GetName() + ": "
-                        + userFunctions[i].GetNestedFunctionsNames()
-                        + userFunctions[i].GetExpression();
-                }
-
-                TextDisplay.Inlines.Add(line);
+                TextDisplay.Inlines.Add(info[i]);
                 TextDisplay.Inlines.Add("\n");
             }
         }
 
         public void SolveFunction(string input)
         {
-            if (userFunctions.Count == 0)
+            if (LogicController.GetFunctionCount() == 0)
             {
                 MessageBox.Show("No added functions to solve. Add functions and try again.");
                 return;
@@ -188,7 +155,7 @@ namespace GDI
                 return;
             }
 
-            var chosenFunction = ChooseFunction(name);
+            var chosenFunction = LogicController.ChooseFunction(name);
 
             if (chosenFunction.ContainsResult(Utility.Concat(boolValues)))
             {
@@ -206,25 +173,12 @@ namespace GDI
             TextDisplay.Inlines.Add("Result: " + result);
         }
 
-        public static LogicFunction? ChooseFunction(string name)
-        {
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetName() == name)
-                {
-                    return userFunctions[i];
-                }
-            }
-
-            return null;
-        }
-
         public void CreateTruthTable(string input)
         {
             string[] splitName = Utility.Split(input, '(');
             string name = splitName[0];
 
-            var chosenFunction = ChooseFunction(name);
+            var chosenFunction = LogicController.ChooseFunction(name);
             if (chosenFunction == null)
             {
                 MessageBox.Show("This function doesn't exist.");
@@ -286,20 +240,26 @@ namespace GDI
 
         public void PrintTruthTable(LogicFunction logicFunction)
         {
+            string line = "";
             for (int i = 0; i < logicFunction.GetOperands().Count; i++)
             {
-                Console.Write(logicFunction.GetOperands()[i] + "  " + "|" + "  ");
+                line += logicFunction.GetOperands()[i] + "\t" + "|" + " ";
             }
-            Console.Write("Result" + " (" + logicFunction.GetExpression() + ")");
-            Console.WriteLine();
+            line += "Result" + " (" + logicFunction.GetExpression() + ")";
+            TextDisplay.Inlines.Add(line);
+            TextDisplay.Inlines.Add("\n");
+
+            line = "";
 
             for (int row = 0; row < logicFunction.GetTruthTable().GetLength(1); row++)
             {
                 for (int col = 0; col < logicFunction.GetTruthTable().GetLength(0); col++)
                 {
-                    Console.Write(logicFunction.GetTruthTable()[col, row] + "  ");
+                    line += logicFunction.GetTruthTable()[col, row] + "\t| ";
                 }
-                Console.WriteLine();
+                TextDisplay.Inlines.Add(line);
+                TextDisplay.Inlines.Add("\n");
+                line = "";
             }
         }
 
@@ -308,6 +268,8 @@ namespace GDI
             var splitLine = Utility.Split(input[0], ' ', 2);
             input[0] = splitLine[1];
             string parameter = splitLine[1];
+
+            LogicFunction searchedFunction;
 
             if (System.IO.Path.HasExtension(parameter))
             {
@@ -328,109 +290,20 @@ namespace GDI
                     }
                 }
 
-                SearchForFunction(fileContent, ',');
+                searchedFunction = LogicController.SearchForFunction(fileContent, ',');
             }
             else
             {
-                SearchForFunction(input, ' ');
+                searchedFunction = LogicController.SearchForFunction(input, ' ');
             }
-        }
 
-        public LogicFunction? SearchForFunction(List<string> input, char inputSeparator)
-        {
-            string[,] inputTableValues = new string[Utility.SplitSize(input[0], inputSeparator), input.Count];
-            int rowCounter = 0;
-
-            for (int i = 0; i < input.Count; i++)
+            if(searchedFunction == null)
             {
-                if (input[i] == "" || input[i] == " ")
-                {
-                    continue;
-                }
-                string[] splitLine = Utility.Split(input[i], inputSeparator);
-
-                for (int col = 0; col < inputTableValues.GetLength(0); col++)
-                {
-                    inputTableValues[col, rowCounter] = splitLine[col];
-                }
-                rowCounter++;
+                MessageBox.Show("No functions with this Truth Table were found.");
+                return;
             }
 
-            bool tableMatch = true;
-
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetTruthTable() == null)
-                {
-                    continue;
-                }
-                else if (userFunctions[i].GetTruthTable().GetLength(1) != inputTableValues.GetLength(1)
-                    || userFunctions[i].GetTruthTable().GetLength(0) != inputTableValues.GetLength(0))
-                {
-                    continue;
-                }
-
-                for (int row = 0; row < userFunctions[i].GetTruthTable().GetLength(1); row++)
-                {
-                    if (!tableMatch)
-                    {
-                        break;
-                    }
-
-                    for (int col = 0; col < userFunctions[i].GetTruthTable().GetLength(0); col++)
-                    {
-                        if (userFunctions[i].GetTruthTable()[col, row] != inputTableValues[col, row])
-                        {
-                            tableMatch = false;
-                        }
-                    }
-                }
-
-                if (tableMatch)
-                {
-                    Console.WriteLine("Found Function: " + userFunctions[i].GetExpression());
-                    return userFunctions[i];
-                }
-            }
-
-            MessageBox.Show("No functions with this Truth Table were found.");
-
-            return null;
-        }
-
-        public static Node CreateTree(List<Token> tokens)
-        {
-            ObjectStack<Node> nodes = new();
-
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                switch (tokens[i].Type)
-                {
-                    case Token.TokenType.NESTED_FUNCTION:
-                        {
-                            var nestedFunction = ChooseFunction(Utility.Split(tokens[i].Value, '(')[0]);
-                            var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()));
-                            nodes.Push(nestedNode);
-                            break;
-                        }
-                    case Token.TokenType.LITERAL: nodes.Push(new Node(tokens[i].Value)); break;
-                    case Token.TokenType.NOT:
-                        {
-                            Node left = nodes.Pop();
-                            nodes.Push(new Node(tokens[i].Value, left));
-                            break;
-                        }
-                    default:
-                        {
-                            Node left = nodes.Pop();
-                            Node right = nodes.Pop();
-                            nodes.Push(new Node(tokens[i].Value, left, right));
-                            break;
-                        }
-                }
-            }
-
-            return nodes.Pop();
+            TextDisplay.Inlines.Add("Result: " + searchedFunction.GetExpression());
         }
 
         private double heightDivide;
@@ -439,7 +312,7 @@ namespace GDI
         {
             TreeCanvas.Children.Clear();
 
-            var chosenFunction = ChooseFunction(functionName);
+            var chosenFunction = LogicController.ChooseFunction(functionName);
             if (chosenFunction == null)
             {
                 MessageBox.Show("This function doesn't exist.");
@@ -449,7 +322,7 @@ namespace GDI
             var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
             var postfixTokens = Parser.ConvertToPostfix(tokens);
 
-            Node root = CreateTree(postfixTokens);
+            Node root = Tree.CreateTree(postfixTokens);
 
             var depth = Tree.TreeDepth(root);
             heightDivide = TreeCanvas.ActualHeight / depth / 2;

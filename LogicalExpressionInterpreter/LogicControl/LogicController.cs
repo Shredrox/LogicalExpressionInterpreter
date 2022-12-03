@@ -7,12 +7,76 @@ namespace LogicalExpressionInterpreter.LogicControl
     public static class LogicController
     {
         private static List<LogicFunction> userFunctions = new();
+        //private static string path = "../../UserFunctions.txt";
+        private static string path = "../../../../LogicalExpressionInterpreter/bin/UserFunctions.txt";
+
+        public static void SaveFunctions()
+        {
+            DataControl.SaveToFile(userFunctions, path);
+        }
+
+        public static void LoadFunctions()
+        {
+            if(File.Exists(path))
+            {
+                userFunctions = DataControl.LoadFromFile(path);
+            }
+        }
+
+        public static void SetUserFunctions(List<LogicFunction> functions)
+        {
+            userFunctions = functions;
+        }
+
+        public static bool FunctionExists(string name)
+        {
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetName() == name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static int GetFunctionCount()
+        {
+            return userFunctions.Count;
+        }
+
+        public static void AddUserFunction(LogicFunction function)
+        {
+            userFunctions.Add(function);
+        }
+
+        public static List<string> GetFunctionsInfo()
+        {
+            List<string> functionsInfo = new List<string>();
+            string line;
+
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
+                if (userFunctions[i].GetNestedFunctions().Count != 0)
+                {
+                    line = i + 1 + ". "
+                        + userFunctions[i].GetName() + ": "
+                        + userFunctions[i].GetNestedFunctionsNames()
+                        + userFunctions[i].GetExpression();
+                }
+                functionsInfo.Add(line);
+            }
+
+            return functionsInfo;
+        }
 
         public static void Run()
         {
-            if (File.Exists("../../UserFunctions.txt"))
+            if (File.Exists(path))
             {
-                userFunctions = DataControl.LoadFromFile("../../UserFunctions.txt");
+                userFunctions = DataControl.LoadFromFile(path);
             }
 
             while (true)
@@ -54,13 +118,13 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 switch (Utility.ToUpper(inputSplit[0]))
                 {
-                    case "DEFINE": AddFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
-                    case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); break;
+                    case "DEFINE": AddFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, path); break;
+                    case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, path); break;
                     case "PRINTALL": PrintFunctions(); break;
                     case "SOLVE": SolveFunction(inputSplit[1]); break;
                     case "ALL": CreateTruthTable(inputSplit[1]); break;
                     case "FIND": FindFunction(inputLines); break;
-                    case "EXIT": DataControl.SaveToFile(userFunctions, "../../UserFunctions.txt"); return;
+                    case "EXIT": DataControl.SaveToFile(userFunctions, path); return;
                     default: Console.WriteLine("Invalid Command."); break;
                 }
 
@@ -320,6 +384,8 @@ namespace LogicalExpressionInterpreter.LogicControl
             input[0] = splitLine[1];
             string parameter = splitLine[1];
 
+            LogicFunction searchedFunction;
+
             if (Path.HasExtension(parameter))
             {
                 if (!File.Exists(parameter))
@@ -339,12 +405,20 @@ namespace LogicalExpressionInterpreter.LogicControl
                     }
                 }
 
-                SearchForFunction(fileContent, ',');
+                searchedFunction = SearchForFunction(fileContent, ',');
             }
             else
             {
-                SearchForFunction(input, ' ');
+                searchedFunction = SearchForFunction(input, ' ');
             }
+
+            if(searchedFunction == null)
+            {
+                Console.WriteLine("No functions with this Truth Table were found.");
+                return;
+            }
+
+            Console.WriteLine("Found Function: " + searchedFunction.GetExpression());
         }
 
         public static LogicFunction? SearchForFunction(List<string> input, char inputSeparator)
@@ -399,12 +473,9 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 if (tableMatch)
                 {
-                    Console.WriteLine("Found Function: " + userFunctions[i].GetExpression());
                     return userFunctions[i];
                 }
             }
-
-            Console.WriteLine("No functions with this Truth Table were found.");
 
             return null;
         }

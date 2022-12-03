@@ -41,11 +41,6 @@ namespace LogicalExpressionInterpreter.BinaryTree
         private static List<string> bools = new();
         private static void FillTree(List<Token> tokens, string[]? boolValues)
         {
-            if(boolValues == null)
-            {
-                return;
-            }
-
             int index = 0;
 
             for (int i = 0; i < tokens.Count; i++)
@@ -95,6 +90,41 @@ namespace LogicalExpressionInterpreter.BinaryTree
                             var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()), nestedBoolValues);
                             var result = Evaluate(nestedNode);
                             nestedFunction.AddResult(Utility.Concat(nestedBoolValues), result);
+                            nodes.Push(nestedNode);
+                            break;
+                        }
+                    case Token.TokenType.LITERAL: nodes.Push(new Node(tokens[i].Value)); break;
+                    case Token.TokenType.NOT:
+                        {
+                            Node left = nodes.Pop();
+                            nodes.Push(new Node(tokens[i].Value, left));
+                            break;
+                        }
+                    default:
+                        {
+                            Node left = nodes.Pop();
+                            Node right = nodes.Pop();
+                            nodes.Push(new Node(tokens[i].Value, left, right));
+                            break;
+                        }
+                }
+            }
+
+            return nodes.Pop();
+        }
+
+        public static Node CreateTree(List<Token> tokens)
+        {
+            ObjectStack<Node> nodes = new();
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                switch (tokens[i].Type)
+                {
+                    case Token.TokenType.NESTED_FUNCTION:
+                        {
+                            var nestedFunction = LogicController.ChooseFunction(Utility.Split(tokens[i].Value, '(')[0]);
+                            var nestedNode = CreateTree(Parser.ConvertToPostfix(nestedFunction.GetTokens()));
                             nodes.Push(nestedNode);
                             break;
                         }
