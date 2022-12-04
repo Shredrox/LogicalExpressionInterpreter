@@ -95,10 +95,11 @@ namespace GDI
                     nestedFunctionName = spl[0];
                     nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
                     literalCount += nestedFunctionOperands.Length;
+                    var nestedFunction = LogicController.ChooseFunction(nestedFunctionName);
 
-                    if(LogicController.ChooseFunction(nestedFunctionName) != null)
+                    if (nestedFunction != null)
                     {
-                        nestedFunctions.Add(LogicController.ChooseFunction(nestedFunctionName));
+                        nestedFunctions.Add(nestedFunction);
                     }
                 }
             }
@@ -169,6 +170,12 @@ namespace GDI
             }
 
             var chosenFunction = LogicController.ChooseFunction(name);
+
+            if(chosenFunction == null)
+            {
+                MessageBox.Show("Function doesn't exist.");
+                return;
+            }
 
             if (chosenFunction.ContainsResult(Utility.Concat(boolValues)))
             {
@@ -253,6 +260,12 @@ namespace GDI
 
         public void PrintTruthTable(LogicFunction logicFunction)
         {
+            if(logicFunction.GetTruthTable() == null)
+            {
+                MessageBox.Show("Truth table is null.");
+                return;
+            }
+
             string line = "";
             for (int i = 0; i < logicFunction.GetOperands().Count; i++)
             {
@@ -282,7 +295,7 @@ namespace GDI
             input[0] = splitLine[1];
             string parameter = splitLine[1];
 
-            LogicFunction searchedFunction;
+            LogicFunction? searchedFunction;
 
             if (System.IO.Path.HasExtension(parameter))
             {
@@ -351,9 +364,11 @@ namespace GDI
                 AddNodeToCanvas(root.GetLeft(), xOffset + widthDivide / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.3d, 2);
             }
 
-            var ellipse = new Ellipse();
-            ellipse.Height = 30;
-            ellipse.Width = 30;
+            var ellipse = new Ellipse
+            {
+                Height = 30,
+                Width = 30
+            };
             ellipse.Margin = new Thickness(-ellipse.Height / 2);
             ellipse.Fill = Brushes.Yellow;
 
@@ -364,9 +379,11 @@ namespace GDI
             container.Children.Add(ellipse);
             container.Children.Add(new TextBlock() { Text = root.GetValue() });
 
-            Line line = new();
-            line.X1 = Math.Round(Convert.ToDouble(container.GetValue(LeftProperty)));
-            line.Y1 = Math.Round(Convert.ToDouble(container.GetValue(TopProperty)));
+            Line line = new()
+            {
+                X1 = Math.Round(Convert.ToDouble(container.GetValue(LeftProperty))),
+                Y1 = Math.Round(Convert.ToDouble(container.GetValue(TopProperty)))
+            };
             line.Y2 = line.Y1 - heightDivide * 2;
 
             switch (nodePos)

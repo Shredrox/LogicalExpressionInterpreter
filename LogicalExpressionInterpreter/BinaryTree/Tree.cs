@@ -39,7 +39,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
 
         private static ObjectStack<string[]> nestedBooleans = new();
         private static List<string> bools = new();
-        private static void FillTree(List<Token> tokens, string[]? boolValues)
+        private static void FillTree(List<Token> tokens, string[] boolValues)
         {
             int index = 0;
 
@@ -67,7 +67,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
             bools.Clear();
         }
 
-        public static Node CreateTree(List<Token> tokens, string[]? boolValues)
+        public static Node CreateTree(List<Token> tokens, string[] boolValues)
         {
             FillTree(tokens, boolValues);
             ObjectStack<Node> nodes = new();
