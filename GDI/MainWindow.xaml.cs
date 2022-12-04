@@ -265,8 +265,20 @@ namespace GDI
                 return;
             }
 
-            TextDisplay.Inlines.Add(logicFunction.GetCombinedName() + ": " + logicFunction.GetExpression() + "\n\n");
-            TextDisplay.Inlines.Add("Truth Table: \n");
+            if (App.Current.Windows.Count > 2)
+            {
+                foreach (Window win in App.Current.Windows)
+                {
+                    if (win != this)
+                    {
+                        win.Close();
+                    }  
+                }
+            }
+
+            List<string> lines = new();
+            lines.Add(logicFunction.GetCombinedName() + ": " + logicFunction.GetExpression() + "\n\n");
+            lines.Add("Truth Table: \n");
 
             string line = "";
             for (int i = 0; i < logicFunction.GetOperands().Count; i++)
@@ -274,8 +286,8 @@ namespace GDI
                 line += logicFunction.GetOperands()[i] + "\t| ";
             }
             line += "Result\t|";
-            TextDisplay.Inlines.Add(line);
-            TextDisplay.Inlines.Add("\n");
+
+            lines.Add(line + "\n");
 
             line = "";
 
@@ -285,10 +297,19 @@ namespace GDI
                 {
                     line += logicFunction.GetTruthTable()[col, row] + "\t| ";
                 }
-                TextDisplay.Inlines.Add(line);
-                TextDisplay.Inlines.Add("\n");
+
+                lines.Add(line + "\n"); 
                 line = "";
             }
+
+            string table = "";
+            for (int i = 0; i < lines.Count; i++)
+            {
+                table += lines[i];
+            }
+
+            TruthTableWindow truthTableWindow = new TruthTableWindow(table);
+            truthTableWindow.Show();
         }
 
         public void FindFunction(List<string> input)
