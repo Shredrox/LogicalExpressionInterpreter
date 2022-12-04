@@ -379,7 +379,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             input[0] = splitLine[1];
             string parameter = splitLine[1];
 
-            LogicFunction searchedFunction;
+            LogicFunction? searchedFunction;
 
             if (Path.HasExtension(parameter))
             {
@@ -404,7 +404,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
             else
             {
-                searchedFunction = SearchForFunction(input, ' ');
+                searchedFunction = SearchForFunction(input, ',');
             }
 
             if(searchedFunction == null)

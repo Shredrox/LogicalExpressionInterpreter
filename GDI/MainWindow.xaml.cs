@@ -43,8 +43,7 @@ namespace GDI
                 case "PRINTALL": PrintFunctions(); break;
                 case "SOLVE": SolveFunction(inputSplit[1]); break;
                 case "ALL": CreateTruthTable(inputSplit[1]); break;
-                case "DISPLAY": DisplayTree(inputSplit[1]); break;  
-                case "FIND": break; //FindFunction(inputSplit[1]);
+                case "DISPLAY": DisplayTree(inputSplit[1]); break; 
                 case "HELP": PrintCommands(); break;
                 case "EXIT": LogicController.SaveFunctions(); this.Close(); return;
                 default: MessageBox.Show("Invalid Command."); break;
@@ -266,12 +265,15 @@ namespace GDI
                 return;
             }
 
+            TextDisplay.Inlines.Add(logicFunction.GetCombinedName() + ": " + logicFunction.GetExpression() + "\n\n");
+            TextDisplay.Inlines.Add("Truth Table: \n");
+
             string line = "";
             for (int i = 0; i < logicFunction.GetOperands().Count; i++)
             {
-                line += logicFunction.GetOperands()[i] + "\t" + "|" + " ";
+                line += logicFunction.GetOperands()[i] + "\t| ";
             }
-            line += "Result" + " (" + logicFunction.GetExpression() + ")";
+            line += "Result\t|";
             TextDisplay.Inlines.Add(line);
             TextDisplay.Inlines.Add("\n");
 
@@ -320,7 +322,7 @@ namespace GDI
             }
             else
             {
-                searchedFunction = LogicController.SearchForFunction(input, ' ');
+                searchedFunction = LogicController.SearchForFunction(input, ',');
             }
 
             if(searchedFunction == null)
@@ -404,25 +406,71 @@ namespace GDI
             }
         }
 
+        static bool containsFIND = false;
+        static List<string> findCommand = new();
+        public static void CheckForFindCommand(string[] input)
+        {
+            if (Utility.ToUpper(Utility.Split(input[0], ' ')[0]) == "FIND")
+            {
+                containsFIND = true;
+                return;
+            }
+
+            containsFIND = false;
+        }
+
         //Window functions
         private void CommandInput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
             {
-                string input = Utility.TrimEnd(CommandInput.Text, '\n');
-                string[] split = Utility.Split(input, '\r');
-
-                if (split[split.Length-1] == null)
+                if (Utility.StringIsNullOrEmpty(CommandInput.Text))
                 {
                     return;
                 }
 
+                string input = Utility.TrimEnd(CommandInput.Text, '\n');
+                string[] split = Utility.Split(input, '\r');
+
                 for (int i = 0; i < split.Length; i++)
                 {
+                    if (Utility.StringIsNullOrEmpty(split[i]))
+                    {
+                        continue;
+                    }
+
                     split[i] = Utility.TrimStart(split[i], '\n');
                 }
 
-                ProcessInput(split[split.Length - 1]);
+                CheckForFindCommand(split);
+
+                if (containsFIND)
+                {
+                    CommandInput.AcceptsReturn = true;
+
+                    if (split[^1] == null)
+                    {
+                        for (int i = 0; i < split.Length; i++)
+                        {
+                            if (Utility.StringIsNullOrEmpty(split[i]))
+                            {
+                                continue;
+                            }
+
+                            findCommand.Add(split[i]);
+                        }
+
+                        FindFunction(findCommand);
+                        containsFIND = false;
+                        CommandInput.AcceptsReturn = false;
+                        CommandInput.Clear();
+                    }
+
+                    return;
+                }
+
+                ProcessInput(split[^1]);
+                CommandInput.Clear();
             }
         }
 

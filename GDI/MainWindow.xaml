@@ -96,9 +96,9 @@
                 Margin="20,0,20,20" 
                 Height="100"
                 TextWrapping="Wrap"
-                AcceptsReturn="True"
+                AcceptsReturn="False"
                 VerticalScrollBarVisibility="Auto"
-                PreviewKeyDown="CommandInput_PreviewKeyDown"/>
+                PreviewKeyDown="CommandInput_PreviewKeyDown" CaretBrush="#FFDAFF00"/>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <TextBlock
