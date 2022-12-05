@@ -1,5 +1,4 @@
-﻿using LogicalExpressionInterpreter.LogicControl;
-using LogicalExpressionInterpreter.UtilityClasses;
+﻿using LogicalExpressionInterpreter.UtilityClasses;
 
 namespace LogicalExpressionInterpreter.Parsing
 {

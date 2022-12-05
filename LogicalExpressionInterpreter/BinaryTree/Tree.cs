@@ -6,7 +6,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
 {
     public static class Tree
     {
-        public static bool Evaluate(Node root)
+        public static bool Evaluate(Node? root)
         {
             if (root == null)
             {

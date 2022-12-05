@@ -32,11 +32,6 @@
             return container[container.Count - 1];
         }
 
-        public bool IsEmpty()
-        {
-            return container.Count == 0;
-        }
-
         public int Count()
         {
             return container.Count;

@@ -32,29 +32,14 @@
             return Left;
         }
 
-        public void SetLeft(Node node)
-        {
-            Left = node;
-        }
-
         public Node? GetRight()
         {
             return Right;
         }
 
-        public void SetRight(Node node)
-        {
-            Right = node;
-        }
-
         public string GetValue()
         {
             return Value;
-        }
-
-        public void SetValue(string value)
-        {
-            Value = value;
         }
     }
 }

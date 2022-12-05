@@ -43,11 +43,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             FunctionsOperands.Add(Operands.ToArray());
         }
 
-        public LogicFunction()
-        {
-
-        }
-
         private void SetOperandsFromExpression()
         {
             string[] splitName = Utility.Split(CombinedName, '(');
