@@ -459,7 +459,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                     for (int col = 0; col < userFunctions[i].GetTruthTable().GetLength(0); col++)
                     {
-                        if (userFunctions[i].GetTruthTable()[col, row] != inputTableValues[col, row])
+                        if (Utility.ToUpper(userFunctions[i].GetTruthTable()[col, row]) != Utility.ToUpper(inputTableValues[col, row]))
                         {
                             tableMatch = false;
                         }

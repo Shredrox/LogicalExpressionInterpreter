@@ -26,12 +26,8 @@ namespace LogicalExpressionInterpreter.BinaryTree
                 case "&&": return left && right;
                 case "||": return left || right;
                 case "!": return !left;
-                case "True":
-                case "T":
-                    return true;
-                case "False":
-                case "F":
-                    return false;
+                case "True": return true;
+                case "False": return false;
             }
 
             return false;
