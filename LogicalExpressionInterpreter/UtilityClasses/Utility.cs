@@ -1,4 +1,6 @@
-﻿namespace LogicalExpressionInterpreter.UtilityClasses
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace LogicalExpressionInterpreter.UtilityClasses
 {
     public class Utility
     {
@@ -311,6 +313,28 @@
             }
 
             return upper;
+        }
+
+        public static string Substring(string input, int startIndex)
+        {
+            string substring = "";
+            for (int i = startIndex; i < input.Length; i++)
+            {
+                substring += input[i];
+            }
+
+            return substring;
+        }
+
+        public static string Substring(string input, int startIndex, int length)
+        {
+            string substring = "";
+            for (int i = startIndex; i < length; i++)
+            {
+                substring += input[i];
+            }
+
+            return substring;
         }
 
         public static bool StringIsNullOrEmpty(string input)

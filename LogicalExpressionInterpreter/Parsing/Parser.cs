@@ -1,4 +1,5 @@
 ﻿using LogicalExpressionInterpreter.UtilityClasses;
+using System.Xml.Linq;
 
 namespace LogicalExpressionInterpreter.Parsing
 {
@@ -66,6 +67,30 @@ namespace LogicalExpressionInterpreter.Parsing
             }
 
             return postfixExpression;
+        }
+
+        public static string ConvertToInfix(string expression)
+        {
+            Stack<string> stack = new();
+            string[] splitExpression = expression.Split(" ");
+            string output = "";
+
+            for (int i = 0; i < splitExpression.Length; i++)
+            {
+                if (char.IsLetter(splitExpression[i][0]))
+                {
+                    stack.Push(splitExpression[i]);
+                }
+                else
+                {
+                    string operand1 = stack.Pop();
+                    string operand2 = stack.Pop();
+                    output = operand2 + " " + splitExpression[i] + " " + operand1;
+                    stack.Push(output);
+                }
+            }
+
+            return output;
         }
     }
 }
