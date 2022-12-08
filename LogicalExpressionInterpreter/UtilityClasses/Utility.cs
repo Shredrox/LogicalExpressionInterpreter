@@ -388,6 +388,18 @@ namespace LogicalExpressionInterpreter.UtilityClasses
             return boolValues;
         }
 
+        public static string[] GetRowItemsWithoutLast(string[,] input, int rowIndex)
+        {
+            string[] row = new string[input.GetLength(1) - 1];
+
+            for (int i = 0; i < input.GetLength(1) - 1; i++)
+            {
+                row[i] = input[rowIndex, i];
+            }
+
+            return row;
+        }
+
         public static ObjectStack<string[]> ReverseStack(ObjectStack<string[]> values)
         {
             ObjectStack<string[]> reversed = new();

@@ -381,7 +381,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             input[0] = splitLine[1];
             string parameter = splitLine[1];
 
-            LogicFunction? searchedFunction;
+            string searchedFunction;
 
             if (Path.HasExtension(parameter))
             {
@@ -409,16 +409,10 @@ namespace LogicalExpressionInterpreter.LogicControl
                 searchedFunction = SearchForFunction(input, ',');
             }
 
-            if(searchedFunction == null)
-            {
-                Console.WriteLine("No functions with this Truth Table were found.");
-                return;
-            }
-
-            Console.WriteLine("Found Function: " + searchedFunction.GetExpression());
+            Console.WriteLine("Found Function: " + searchedFunction);
         }
 
-        public static LogicFunction? SearchForFunction(List<string> input, char inputSeparator)
+        public static string SearchForFunction(List<string> input, char inputSeparator)
         {
             string[,] inputTableValues = new string[input.Count, Utility.SplitSize(input[0], inputSeparator)];
             int rowCounter = 0;
@@ -450,214 +444,10 @@ namespace LogicalExpressionInterpreter.LogicControl
                 { "true", "true", "true", "true"},
             };
 
-            var res = LogicController.ConstructBooleanExpression(table, 3);
+            var foundFunction = Evolution.ConstructBooleanExpression(table);
+            var result = Parser.ConvertToInfix(foundFunction);
 
-            var aa = Parser.ConvertToInfix(res);
-            return null;
-        }
-
-        // EVOLUTION
-
-        static Random Random = new Random();
-        static List<string> population = new();
-
-        public static string ConstructBooleanExpression(string[,] truthTable, int length)
-        {
-            // Generate a random boolean expression and evaluate its fitness against the truth table
-            string booleanExpression = GenerateRandomBooleanExpression(length);
-
-            booleanExpression = Utility.TrimEnd(booleanExpression, ' ');
-
-            int fitness = EvaluateFitness(booleanExpression, truthTable);
-
-            // Create a population of candidate solutions and add the initial boolean expression to it
-            //List<string> population = new List<string>();
-            population.Add(booleanExpression);
-
-            // Repeat the following steps until a boolean expression is found that perfectly matches the truth table
-            while (fitness < truthTable.GetLength(0))
-            {
-                // Create a new generation of boolean expressions by applying evolutionary operators to the population
-                List<string> newGeneration = ApplyEvolutionaryOperators(population);
-
-                // Evaluate each of the new boolean expressions against the truth table to determine their fitness
-                foreach (string expression in newGeneration)
-                {
-                    int expressionFitness = EvaluateFitness(expression, truthTable);
-                    if (expressionFitness > fitness)
-                    {
-                        booleanExpression = expression;
-                        fitness = expressionFitness;
-                    }
-                }
-
-                // Add the new generation of expressions to the population
-                population.AddRange(newGeneration);
-            }
-
-            return booleanExpression;
-        }
-
-        public static int EvaluateFitness(string booleanExpression, string[,] truthTable)
-        {
-            int fitness = 0;
-            for (int i = 0; i < truthTable.GetLength(0); i++)
-            {
-                var values = GetRowItemsWithoutLast(truthTable, i);
-                var exp = Tokenizer.Tokenize(booleanExpression);
-
-                var root = Tree.CreateTree(exp, values);
-                var result = Tree.Evaluate(root);
-
-                // Evaluate the boolean expression and compare the output to the expected result
-                if (result == bool.Parse(truthTable[i, truthTable.GetLength(1) - 1]))
-                {
-                    fitness++;
-                }
-            }
-            return fitness;
-        }
-
-        public static string[] GetRowItemsWithoutLast(string[,] input, int rowIndex)
-        {
-            string[] row = new string[input.GetLength(1)-1];
-
-            for (int i = 0; i < input.GetLength(1)-1; i++)
-            {
-                row[i] = input[rowIndex,i];
-            }
-
-            return row;
-        }
-
-        public static List<string> ApplyEvolutionaryOperators(List<string> population)
-        {
-            List<string> newGeneration = new();
-
-            // Generate a random number of mutated expressions
-            int numMutations = Random.Next(0, 10);
-            for (int i = 0; i < numMutations; i++)
-            {
-                // Select a random expression from the population to mutate
-                string expression = SelectRandomExpression(population);
-
-                // Apply mutation to the selected expression
-                string mutatedExpression = Mutate(expression);
-
-                if (Utility.GetCountOf(mutatedExpression, 'a') != 3)
-                {
-                    mutatedExpression = Utility.TrimEnd(GenerateRandomBooleanExpression(3), ' ');
-                }
-
-                newGeneration.Add(mutatedExpression);
-            }
-
-            // Generate a random number of expressions by applying crossover to pairs of expressions
-            int numCrossovers = Random.Next(0, 10);
-            for (int i = 0; i < numCrossovers; i++)
-            {
-                // Select two random expressions from the population
-                string expression1 = SelectRandomExpression(population);
-                string expression2 = SelectRandomExpression(population);
-
-                // Apply crossover to the selected expressions
-                string crossoverExpression = Crossover(expression1, expression2);
-
-                if (Utility.GetCountOf(crossoverExpression, 'a') != 3)
-                {
-                    crossoverExpression = Utility.TrimEnd(GenerateRandomBooleanExpression(3), ' ');
-                }
-
-                newGeneration.Add(crossoverExpression);
-            }
-
-            return newGeneration;
-        }
-
-        public static string GenerateRandomBooleanExpression(int operandCount)
-        {
-            // Create an empty string for the boolean expression
-            string booleanExpression = "";
-
-            // Generate a random number of input variables and logical operators
-            int operatorCount = operandCount - 1;
-
-            // Append the input variables to the boolean expression
-            for (int i = 0; i < operandCount; i++)
-            {
-                booleanExpression += Random.Next(0, 2) == 0 ? "a" : "a!";
-                booleanExpression += " ";
-            }
-
-            // Append the logical operators to the boolean expression
-            for (int i = 0; i < operatorCount; i++)
-            {
-                booleanExpression += Random.Next(0, 2) == 0 ? "&" : "|";
-                booleanExpression += " ";
-            }
-
-            return booleanExpression;
-        }
-
-        // Apply mutation to a given boolean expression
-        public static string Mutate(string booleanExpression)
-        {
-            // Choose a random part of the boolean expression to mutate
-            int mutationIndex = Random.Next(booleanExpression.Length);
-            char mutation = booleanExpression[mutationIndex];
-
-            // Replace the chosen part of the boolean expression with a different value
-            if (mutation == 'a' && booleanExpression[mutationIndex + 1] != '!')
-            {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "a!" + Utility.Substring(booleanExpression, mutationIndex + 1);
-            }
-            else if(mutation == '!' && booleanExpression[mutationIndex - 1] == 'a')
-            {
-                return Utility.Substring(booleanExpression, 0, mutationIndex - 1) + "a" + Utility.Substring(booleanExpression, mutationIndex + 1);
-            }
-            else if(mutation == 'a' && booleanExpression[mutationIndex + 1] == '!')
-            {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "a" + Utility.Substring(booleanExpression, mutationIndex + 1);
-            }
-            else if (mutation == '&')
-            {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "|" + Utility.Substring(booleanExpression, mutationIndex + 1);
-            }
-            else if (mutation == '|')
-            {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "&" + Utility.Substring(booleanExpression, mutationIndex + 1);
-            }
-            else
-            {
-                return booleanExpression;
-            }
-        }
-
-        // Apply crossover to two given boolean expressions
-        public static string Crossover(string booleanExpression1, string booleanExpression2)
-        {
-            // Choose a random crossover point
-            int crossoverPoint = Random.Next(1, booleanExpression1.Length - 1 - Utility.GetCountOf(booleanExpression1, '!'));
-
-            // Combine the two boolean expressions at the crossover point
-            if (booleanExpression1[crossoverPoint - 1] != ' ' || booleanExpression2[crossoverPoint - 1] != ' ')
-            {
-                int choice = Random.Next(0, 2);
-                switch (choice)
-                {
-                    case 0: return booleanExpression1;
-                    case 1: return booleanExpression2;
-                }
-            }
-
-            string crossoverExpression = Utility.Substring(booleanExpression1, 0, crossoverPoint) + Utility.Substring(booleanExpression2, crossoverPoint);
-            return crossoverExpression;
-        }
-
-        public static string SelectRandomExpression(List<string> expressions)
-        {
-            int index = Random.Next(expressions.Count);
-            return expressions[index];
+            return result;
         }
     }
 }

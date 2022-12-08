@@ -318,7 +318,7 @@ namespace GDI
             input[0] = splitLine[1];
             string parameter = splitLine[1];
 
-            LogicFunction? searchedFunction;
+            string searchedFunction;
 
             if (System.IO.Path.HasExtension(parameter))
             {
@@ -346,13 +346,7 @@ namespace GDI
                 searchedFunction = LogicController.SearchForFunction(input, ',');
             }
 
-            if(searchedFunction == null)
-            {
-                MessageBox.Show("No functions with this Truth Table were found.");
-                return;
-            }
-
-            TextDisplay.Inlines.Add("Result: " + searchedFunction.GetExpression());
+            TextDisplay.Inlines.Add("Result: " + searchedFunction);
         }
 
         private double heightDivide;
