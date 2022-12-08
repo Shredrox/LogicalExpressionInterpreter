@@ -64,6 +64,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     fitness++;
                 }
             }
+
             return fitness;
         }
 
@@ -85,6 +86,12 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             return booleanExpression;
+        }
+
+        public static string SelectRandomExpression(List<string> expressions)
+        {
+            int index = _random.Next(expressions.Count);
+            return expressions[index];
         }
 
         public static List<string> ApplyEvolutionaryOperators(List<string> population)
@@ -141,26 +148,31 @@ namespace LogicalExpressionInterpreter.LogicControl
             // Replace the chosen part of the boolean expression with a different value
             if (mutation == 'a' && booleanExpression[mutationIndex + 1] != '!')
             {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "a!" + Utility.Substring(booleanExpression, mutationIndex + 1);
+                return MutateExpression(booleanExpression, "a!", mutationIndex, mutationIndex + 1);
             }
             else if (mutation == '!' && booleanExpression[mutationIndex - 1] == 'a')
             {
-                return Utility.Substring(booleanExpression, 0, mutationIndex - 1) + "a" + Utility.Substring(booleanExpression, mutationIndex + 1);
+                return MutateExpression(booleanExpression, "a", mutationIndex - 1, mutationIndex + 1);
             }
             else if (mutation == 'a' && booleanExpression[mutationIndex + 1] == '!')
             {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "a" + Utility.Substring(booleanExpression, mutationIndex + 1);
+                return MutateExpression(booleanExpression, "a", mutationIndex, mutationIndex + 1);
             }
             else if (mutation == '&')
             {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "|" + Utility.Substring(booleanExpression, mutationIndex + 1);
+                return MutateExpression(booleanExpression, "|", mutationIndex, mutationIndex + 1);
             }
             else if (mutation == '|')
             {
-                return Utility.Substring(booleanExpression, 0, mutationIndex) + "&" + Utility.Substring(booleanExpression, mutationIndex + 1);
+                return MutateExpression(booleanExpression, "&", mutationIndex, mutationIndex + 1);
             }
 
             return booleanExpression;
+        }
+
+        private static string MutateExpression(string expression, string mutation, int firstMutationIndex, int secondMutationIndex)
+        {
+            return Utility.Substring(expression, 0, firstMutationIndex) + mutation + Utility.Substring(expression, secondMutationIndex);
         }
 
         // Apply crossover to two given boolean expressions
@@ -180,14 +192,12 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
             }
 
-            string crossoverExpression = Utility.Substring(booleanExpression1, 0, crossoverPoint) + Utility.Substring(booleanExpression2, crossoverPoint);
-            return crossoverExpression;
+            return CrossoverExpressions(booleanExpression1, booleanExpression2, crossoverPoint);
         }
 
-        public static string SelectRandomExpression(List<string> expressions)
+        private static string CrossoverExpressions(string expression1, string expression2, int index)
         {
-            int index = _random.Next(expressions.Count);
-            return expressions[index];
+            return Utility.Substring(expression1, 0, index) + Utility.Substring(expression2, index);
         }
     }
 }
