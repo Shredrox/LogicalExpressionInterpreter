@@ -41,5 +41,10 @@
         {
             return Value;
         }
+
+        public override string ToString()
+        {
+            return Left.Value + "  " + Value + "  " + Right.Value;
+        }
     }
 }
