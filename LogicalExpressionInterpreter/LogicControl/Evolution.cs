@@ -77,7 +77,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             int operatorCount = operandCount - 1;
             for (int i = 0; i < operatorCount; i++)
             {
-                booleanExpression.Add(_random.Next(0, 2) == 0 ? "&" : "|");
+                booleanExpression.Add(_random.Next(0, 2) == 0 ? "&&" : "||");
             }
 
             return booleanExpression;
@@ -129,15 +129,15 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 case "a": booleanExpression[mutationIndex] = "a!"; return;
                 case "a!": booleanExpression[mutationIndex] = "a"; return;
-                case "&": booleanExpression[mutationIndex] = "|"; return;
-                case "|": booleanExpression[mutationIndex] = "&"; return;
+                case "&&": booleanExpression[mutationIndex] = "||"; return;
+                case "||": booleanExpression[mutationIndex] = "&&"; return;
             }
         }
 
         private static List<string> Crossover(List<string> booleanExpression1, List<string> booleanExpression2)
         {
             int crossoverPoint = _random.Next(1, booleanExpression1.Count - 1);
-            List<string> crossoverExpression = new List<string>();
+            List<string> crossoverExpression = new();
 
             for (int i = 0; i < crossoverPoint; i++)
             {

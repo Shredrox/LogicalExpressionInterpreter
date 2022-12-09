@@ -459,75 +459,130 @@ namespace LogicalExpressionInterpreter.LogicControl
             var foundFunction = Evolution.ConstructBooleanExpression(table);
             var result = Parser.ConvertToInfix(foundFunction);
 
-            var funcs = GetFunctionsWithOperandCount(3);
+            var funcs = GetFunctionsWithOperandCount(table.GetLength(1)-1);
             List<LogicFunction> test = new();
-            test.Add(new LogicFunction("test1", "a && b", "test1(a,b)"));
-            test.Add(new LogicFunction("test2", "a || b", "test2(a,b)"));
-            test.Add(new LogicFunction("test3", "!a & b", "test3(a,b)"));
+            test.Add(new LogicFunction("test1", "a && b && c", "test1(a,b,c)"));
+            test.Add(new LogicFunction("test2", "a && b", "test2(a,b)"));
+            test.Add(new LogicFunction("test3", "(b | c) & d", "test3(a,b,c)"));
 
-            var e = CombineResult("!a & (b | c) & d", test);
+            var finalResult = CombineResult(result, test);
 
-            return e;
+            return finalResult;
         }
 
-        public static List<int> GetOperandIndices(List<Token> tokens)
+        public static bool ContainsTokens(List<Token> tokens, List<Token> subTokens)
         {
-            List<int> indices = new();
-            for (int i = 0; i < tokens.Count; i++)
+            int counter = 0;
+            int subTokensIndex = 0;
+
+            for (int i = 0; i <= tokens.Count; i++)
             {
-                if (tokens[i].Type == Token.TokenType.LITERAL)
+                if (counter == subTokens.Count )
                 {
-                    indices.Add(i);
+                    return true;
+                }
+                else if(i == tokens.Count)
+                {
+                    return false;
+                }
+
+                if (tokens[i].Type != subTokens[subTokensIndex].Type)
+                {
+                    if(counter > 0)
+                    {
+                        counter--;
+                    }
+                    subTokensIndex = 0;
+                }
+                else if (tokens[i].Type == subTokens[subTokensIndex].Type)
+                {
+                    subTokensIndex++;
+                    counter++;
                 }
             }
 
-            return indices;
-        }   
+            return false;
+        }
+
+        public static int ContainedTokensStartIndex(List<Token> tokens, List<Token> subTokens)
+        {
+            int counter = 0;
+            int subTokensIndex = 0;
+            int index = 0;
+            bool atSubStartPoint = false;
+
+            for (int i = 0; i <= tokens.Count; i++)
+            {
+                if (counter == subTokens.Count)
+                {
+                    return index;
+                }
+                else if (i == tokens.Count)
+                {
+                    return index;
+                }
+
+                if (tokens[i].Type != subTokens[subTokensIndex].Type)
+                {
+                    if (counter > 0)
+                    {
+                        counter--;
+                    }
+                    index = -1;
+                    subTokensIndex = 0;
+                }
+                else if (tokens[i].Type == subTokens[subTokensIndex].Type)
+                {
+                    atSubStartPoint = true;
+                    subTokensIndex++;
+                    counter++;
+                }
+
+                if (atSubStartPoint && counter == 1)
+                {
+                    index = i;
+                    atSubStartPoint = false;
+                }
+            }
+
+            return -1;
+        }
 
         public static string CombineResult(string evolutionExpression, List<LogicFunction> functions)
         {
-            int operandIndex = 0;
-
             var tokens = Tokenizer.Tokenize(evolutionExpression);
-            var indices = GetOperandIndices(tokens);
 
             for (int i = 0; i < functions.Count; i++)
             {
                 var functionTokens = Tokenizer.Tokenize(functions[i].GetExpression());
 
-                while (operandIndex < tokens.Count)
+                if (ContainsTokens(tokens, functionTokens))
                 {
-                    for (int k = 0; k < functionTokens.Count; k++)
-                    {
-                        if (functionTokens[k].Type != tokens[operandIndex].Type)
-                        {
-                            if (operandIndex + 1 < indices.Count)
-                            {
-                                operandIndex = indices[operandIndex + 1];
-                            }
-                            else
-                            {
-                                operandIndex = tokens.Count;
-                            }
-
-                            break;
-                        }
-                        if (k + 1 == functionTokens.Count)
-                        {
-                            string func = functions[i].GetCombinedName();
-                            int expressionLength = functionTokens.Count;
-                            string result = Utility.Substring(evolutionExpression, 0, operandIndex - expressionLength + 1);
-                            string resultSecondPart = Utility.Substring(evolutionExpression, operandIndex + expressionLength);
-                            return evolutionExpression + " or " + result + " " + func + " " + resultSecondPart;
-                        }
-                        operandIndex++;
-                    }
+                    int functionIndex = ContainedTokensStartIndex(tokens, functionTokens);
+                    string functionName = functions[i].GetCombinedName();
+                    return evolutionExpression + "  <--or-->  " + FormatResult(tokens, functionTokens, functionName,functionIndex);
                 }
-
-                operandIndex = 0;
             }
 
-            return "";
+            return evolutionExpression;
+        }
+
+        public static string FormatResult(List<Token> tokens, List<Token> subTokens, string functionName, int index)
+        {
+            string result = "";
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if (i == index)
+                {
+                    result += functionName + " ";
+                    i += subTokens.Count - 1;
+                    continue;
+                }
+                result += tokens[i].Value + " ";
+            }
+
+            return result;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace LogicalExpressionInterpreter.UtilityClasses
+﻿namespace LogicalExpressionInterpreter.UtilityClasses
 {
     public class Utility
     {
