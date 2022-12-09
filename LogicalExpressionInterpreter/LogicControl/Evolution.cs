@@ -69,9 +69,13 @@ namespace LogicalExpressionInterpreter.LogicControl
         {
             List<string> booleanExpression = new();
 
+            int letterValue = 97;
+            
             for (int i = 0; i < operandCount; i++)
             {
-                booleanExpression.Add(_random.Next(0, 2) == 0 ? "a" : "a!");
+                char operand = (char)letterValue;
+                booleanExpression.Add(_random.Next(0, 2) == 0 ? operand.ToString() : operand + "!");
+                letterValue++;
             }
 
             int operatorCount = operandCount - 1;
@@ -127,10 +131,9 @@ namespace LogicalExpressionInterpreter.LogicControl
             // Replace the chosen part of the boolean expression with a different value
             switch (mutation)
             {
-                case "a": booleanExpression[mutationIndex] = "a!"; return;
-                case "a!": booleanExpression[mutationIndex] = "a"; return;
                 case "&&": booleanExpression[mutationIndex] = "||"; return;
                 case "||": booleanExpression[mutationIndex] = "&&"; return;
+                default: booleanExpression[mutationIndex] = Utility.InvertOperand(mutation); return;
             }
         }
 

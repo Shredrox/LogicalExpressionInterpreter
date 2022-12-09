@@ -402,6 +402,16 @@
             return boolValues;
         }
 
+        public static string InvertOperand(string operand)
+        {
+            if(Contains(operand,'!'))
+            {
+                return operand[0].ToString();
+            }
+
+            return operand + "!";
+        }
+
         public static string[] GetRowItemsWithoutLast(string[,] input, int rowIndex)
         {
             string[] row = new string[input.GetLength(1) - 1];
