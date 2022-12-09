@@ -23,6 +23,20 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
+        public static List<LogicFunction> GetFunctionsWithOperandCount(int operandCount)
+        {
+            List<LogicFunction> matchingFunctions = new();
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetOperands().Count <= operandCount)
+                {
+                    matchingFunctions.Add(userFunctions[i]);
+                }
+            }
+
+            return matchingFunctions;
+        }
+
         public static bool FunctionExists(string name)
         {
             for (int i = 0; i < userFunctions.Count; i++)
@@ -445,7 +459,75 @@ namespace LogicalExpressionInterpreter.LogicControl
             var foundFunction = Evolution.ConstructBooleanExpression(table);
             var result = Parser.ConvertToInfix(foundFunction);
 
-            return result;
+            var funcs = GetFunctionsWithOperandCount(3);
+            List<LogicFunction> test = new();
+            test.Add(new LogicFunction("test1", "a && b", "test1(a,b)"));
+            test.Add(new LogicFunction("test2", "a || b", "test2(a,b)"));
+            test.Add(new LogicFunction("test3", "!a & b", "test3(a,b)"));
+
+            var e = CombineResult("!a & (b | c) & d", test);
+
+            return e;
+        }
+
+        public static List<int> GetOperandIndices(List<Token> tokens)
+        {
+            List<int> indices = new();
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if (tokens[i].Type == Token.TokenType.LITERAL)
+                {
+                    indices.Add(i);
+                }
+            }
+
+            return indices;
+        }   
+
+        public static string CombineResult(string evolutionExpression, List<LogicFunction> functions)
+        {
+            int operandIndex = 0;
+
+            var tokens = Tokenizer.Tokenize(evolutionExpression);
+            var indices = GetOperandIndices(tokens);
+
+            for (int i = 0; i < functions.Count; i++)
+            {
+                var functionTokens = Tokenizer.Tokenize(functions[i].GetExpression());
+
+                while (operandIndex < tokens.Count)
+                {
+                    for (int k = 0; k < functionTokens.Count; k++)
+                    {
+                        if (functionTokens[k].Type != tokens[operandIndex].Type)
+                        {
+                            if (operandIndex + 1 < indices.Count)
+                            {
+                                operandIndex = indices[operandIndex + 1];
+                            }
+                            else
+                            {
+                                operandIndex = tokens.Count;
+                            }
+
+                            break;
+                        }
+                        if (k + 1 == functionTokens.Count)
+                        {
+                            string func = functions[i].GetCombinedName();
+                            int expressionLength = functionTokens.Count;
+                            string result = Utility.Substring(evolutionExpression, 0, operandIndex - expressionLength + 1);
+                            string resultSecondPart = Utility.Substring(evolutionExpression, operandIndex + expressionLength);
+                            return evolutionExpression + " or " + result + " " + func + " " + resultSecondPart;
+                        }
+                        operandIndex++;
+                    }
+                }
+
+                operandIndex = 0;
+            }
+
+            return "";
         }
     }
 }

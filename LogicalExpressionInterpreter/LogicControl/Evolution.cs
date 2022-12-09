@@ -7,27 +7,23 @@ namespace LogicalExpressionInterpreter.LogicControl
     public static class Evolution
     {
         private static Random _random = new Random();
-        private static List<string> _population = new();
+        private static List<List<string>> _population = new();
         private static int _expressionVariableCount = 0;
 
         public static string ConstructBooleanExpression(string[,] truthTable)
         {
-            _expressionVariableCount = truthTable.GetLength(1)-1;
+            _expressionVariableCount = truthTable.GetLength(1) - 1;
 
-            // Generate a random boolean expression and evaluate its fitness against the truth table
-            string booleanExpression = GenerateRandomBooleanExpression(_expressionVariableCount);
-            booleanExpression = Utility.TrimEnd(booleanExpression, ' ');
+            List<string> booleanExpression = GenerateRandomBooleanExpression(_expressionVariableCount);
 
             int fitness = EvaluateFitness(booleanExpression, truthTable);
 
-            // Create a population of candidate solutions and add the initial boolean expression to it
             _population.Add(booleanExpression);
 
-            // Repeat the following steps until a boolean expression is found that perfectly matches the truth table
             while (fitness < truthTable.GetLength(0))
             {
                 // Create a new generation of boolean expressions by applying evolutionary operators to the population
-                List<string> newGeneration = ApplyEvolutionaryOperators(_population);
+                List<List<string>> newGeneration = ApplyEvolutionaryOperators(_population);
 
                 // Evaluate each of the new boolean expressions against the truth table to determine their fitness
                 for (int i = 0; i < newGeneration.Count; i++)
@@ -40,22 +36,23 @@ namespace LogicalExpressionInterpreter.LogicControl
                     }
                 }
 
-                // Add the new generation of expressions to the population
                 _population.AddRange(newGeneration);
             }
 
-            return booleanExpression;
+            return Utility.ConcatWithSpaces(booleanExpression);
         }
 
-        private static int EvaluateFitness(string booleanExpression, string[,] truthTable)
+        private static int EvaluateFitness(List<string> booleanExpression, string[,] truthTable)
         {
             int fitness = 0;
             for (int i = 0; i < truthTable.GetLength(0); i++)
             {
-                var values = Utility.GetRowItemsWithoutLast(truthTable, i);
-                var exp = Tokenizer.Tokenize(booleanExpression);
+                var tableValues = Utility.GetRowItemsWithoutLast(truthTable, i);
+                string expression = Utility.ConcatWithSpaces(booleanExpression);
 
-                var root = Tree.CreateTree(exp, values);
+                var tokens = Tokenizer.Tokenize(expression);
+
+                var root = Tree.CreateTree(tokens, tableValues);
                 var result = Tree.Evaluate(root);
 
                 // Evaluate the boolean expression and compare the output to the expected result
@@ -68,69 +65,52 @@ namespace LogicalExpressionInterpreter.LogicControl
             return fitness;
         }
 
-        public static string GenerateRandomBooleanExpression(int operandCount)
+        private static List<string> GenerateRandomBooleanExpression(int operandCount)
         {
-            string booleanExpression = "";
+            List<string> booleanExpression = new();
 
             for (int i = 0; i < operandCount; i++)
             {
-                booleanExpression += _random.Next(0, 2) == 0 ? "a" : "a!";
-                booleanExpression += " ";
+                booleanExpression.Add(_random.Next(0, 2) == 0 ? "a" : "a!");
             }
 
             int operatorCount = operandCount - 1;
             for (int i = 0; i < operatorCount; i++)
             {
-                booleanExpression += _random.Next(0, 2) == 0 ? "&" : "|";
-                booleanExpression += " ";
+                booleanExpression.Add(_random.Next(0, 2) == 0 ? "&" : "|");
             }
 
             return booleanExpression;
         }
 
-        public static string SelectRandomExpression(List<string> expressions)
+        private static List<string> SelectRandomExpression()
         {
-            int index = _random.Next(expressions.Count);
-            return expressions[index];
+            int index = _random.Next(_population.Count);
+            return _population[index];
         }
 
-        public static List<string> ApplyEvolutionaryOperators(List<string> population)
+        private static List<List<string>> ApplyEvolutionaryOperators(List<List<string>> population)
         {
-            List<string> newGeneration = new();
+            List<List<string>> newGeneration = new();
 
             // Generate a random number of mutated expressions
             int numMutations = _random.Next(0, 10);
             for (int i = 0; i < numMutations; i++)
             {
-                // Select a random expression from the population to mutate
-                string expression = SelectRandomExpression(population);
+                List<string> expression = SelectRandomExpression();
+                Mutate(expression);
 
-                // Apply mutation to the selected expression
-                string mutatedExpression = Mutate(expression);
-
-                if (Utility.GetCountOf(mutatedExpression, 'a') != _expressionVariableCount)
-                {
-                    mutatedExpression = Utility.TrimEnd(GenerateRandomBooleanExpression(_expressionVariableCount), ' ');
-                }
-
-                newGeneration.Add(mutatedExpression);
+                newGeneration.Add(expression);
             }
 
             // Generate a random number of expressions by applying crossover to pairs of expressions
             int numCrossovers = _random.Next(0, 10);
             for (int i = 0; i < numCrossovers; i++)
             {
-                // Select two random expressions from the population
-                string expression1 = SelectRandomExpression(population);
-                string expression2 = SelectRandomExpression(population);
+                List<string> expression1 = SelectRandomExpression();
+                List<string> expression2 = SelectRandomExpression();
 
-                // Apply crossover to the selected expressions
-                string crossoverExpression = Crossover(expression1, expression2);
-
-                if (Utility.GetCountOf(crossoverExpression, 'a') != _expressionVariableCount)
-                {
-                    crossoverExpression = Utility.TrimEnd(GenerateRandomBooleanExpression(_expressionVariableCount), ' ');
-                }
+                List<string> crossoverExpression = Crossover(expression1, expression2);
 
                 newGeneration.Add(crossoverExpression);
             }
@@ -138,66 +118,38 @@ namespace LogicalExpressionInterpreter.LogicControl
             return newGeneration;
         }
 
-        // Apply mutation to a given boolean expression
-        public static string Mutate(string booleanExpression)
+        private static void Mutate(List<string> booleanExpression)
         {
             // Choose a random part of the boolean expression to mutate
-            int mutationIndex = _random.Next(booleanExpression.Length);
-            char mutation = booleanExpression[mutationIndex];
+            int mutationIndex = _random.Next(booleanExpression.Count);
+            string mutation = booleanExpression[mutationIndex];
 
             // Replace the chosen part of the boolean expression with a different value
-            if (mutation == 'a' && booleanExpression[mutationIndex + 1] != '!')
+            switch (mutation)
             {
-                return MutateExpression(booleanExpression, "a!", mutationIndex, mutationIndex + 1);
+                case "a": booleanExpression[mutationIndex] = "a!"; return;
+                case "a!": booleanExpression[mutationIndex] = "a"; return;
+                case "&": booleanExpression[mutationIndex] = "|"; return;
+                case "|": booleanExpression[mutationIndex] = "&"; return;
             }
-            else if (mutation == '!' && booleanExpression[mutationIndex - 1] == 'a')
-            {
-                return MutateExpression(booleanExpression, "a", mutationIndex - 1, mutationIndex + 1);
-            }
-            else if (mutation == 'a' && booleanExpression[mutationIndex + 1] == '!')
-            {
-                return MutateExpression(booleanExpression, "a", mutationIndex, mutationIndex + 1);
-            }
-            else if (mutation == '&')
-            {
-                return MutateExpression(booleanExpression, "|", mutationIndex, mutationIndex + 1);
-            }
-            else if (mutation == '|')
-            {
-                return MutateExpression(booleanExpression, "&", mutationIndex, mutationIndex + 1);
-            }
-
-            return booleanExpression;
         }
 
-        private static string MutateExpression(string expression, string mutation, int firstMutationIndex, int secondMutationIndex)
+        private static List<string> Crossover(List<string> booleanExpression1, List<string> booleanExpression2)
         {
-            return Utility.Substring(expression, 0, firstMutationIndex) + mutation + Utility.Substring(expression, secondMutationIndex);
-        }
+            int crossoverPoint = _random.Next(1, booleanExpression1.Count - 1);
+            List<string> crossoverExpression = new List<string>();
 
-        // Apply crossover to two given boolean expressions
-        public static string Crossover(string booleanExpression1, string booleanExpression2)
-        {
-            // Choose a random crossover point
-            int crossoverPoint = _random.Next(1, booleanExpression1.Length - 1 - Utility.GetCountOf(booleanExpression1, '!'));
-
-            // Combine the two boolean expressions at the crossover point
-            if (booleanExpression1[crossoverPoint - 1] != ' ' || booleanExpression2[crossoverPoint - 1] != ' ')
+            for (int i = 0; i < crossoverPoint; i++)
             {
-                int choice = _random.Next(0, 2);
-                switch (choice)
-                {
-                    case 0: return booleanExpression1;
-                    case 1: return booleanExpression2;
-                }
+                crossoverExpression.Add(booleanExpression1[i]);
             }
 
-            return CrossoverExpressions(booleanExpression1, booleanExpression2, crossoverPoint);
-        }
+            for (int i = crossoverPoint; i < booleanExpression2.Count; i++)
+            {
+                crossoverExpression.Add(booleanExpression2[i]);
+            }
 
-        private static string CrossoverExpressions(string expression1, string expression2, int index)
-        {
-            return Utility.Substring(expression1, 0, index) + Utility.Substring(expression2, index);
+            return crossoverExpression;
         }
     }
 }

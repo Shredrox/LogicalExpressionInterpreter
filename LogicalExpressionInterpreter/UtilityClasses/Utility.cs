@@ -203,6 +203,22 @@ namespace LogicalExpressionInterpreter.UtilityClasses
             return result;
         }
 
+        public static string ConcatWithSpaces(List<string> strings)
+        {
+            string result = "";
+            for (int i = 0; i < strings.Count; i++)
+            {
+                if (i + 1 == strings.Count)
+                {
+                    result += strings[i];
+                    break;
+                }
+                result += strings[i] + " ";
+            }
+
+            return result;
+        }
+
         public static string ConcatWithSpaces(string[] strings)
         {
             string result = "";
