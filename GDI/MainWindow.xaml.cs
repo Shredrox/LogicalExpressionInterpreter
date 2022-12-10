@@ -476,6 +476,7 @@ namespace GDI
                         }
 
                         FindFunction(findCommand);
+                        findCommand.Clear();
                         containsFIND = false;
                         CommandInput.AcceptsReturn = false;
                         CommandInput.Clear();

@@ -459,49 +459,15 @@ namespace LogicalExpressionInterpreter.LogicControl
             var foundFunction = Evolution.ConstructBooleanExpression(table);
             var result = Parser.ConvertToInfix(foundFunction);
 
-            var funcs = GetFunctionsWithOperandCount(table.GetLength(1)-1);
+            var functions = GetFunctionsWithOperandCount(table.GetLength(1)-1);
             List<LogicFunction> test = new();
-            test.Add(new LogicFunction("test1", "a && b && c", "test1(a,b,c)"));
-            test.Add(new LogicFunction("test2", "a && b", "test2(a,b)"));
-            test.Add(new LogicFunction("test3", "(b | c) & d", "test3(a,b,c)"));
+            test.Add(new LogicFunction("test1", "a & b && c", "test1(a,b,c)"));
+            test.Add(new LogicFunction("test2", "a || b", "test2(a,b)"));
+            test.Add(new LogicFunction("test3", "a & b & c", "test3(a,b,c)"));
 
-            var finalResult = CombineResult(result, test);
+            var finalResult = CombineResult(result, functions);
 
             return finalResult;
-        }
-
-        public static bool ContainsTokens(List<Token> tokens, List<Token> subTokens)
-        {
-            int counter = 0;
-            int subTokensIndex = 0;
-
-            for (int i = 0; i <= tokens.Count; i++)
-            {
-                if (counter == subTokens.Count )
-                {
-                    return true;
-                }
-                else if(i == tokens.Count)
-                {
-                    return false;
-                }
-
-                if (tokens[i].Type != subTokens[subTokensIndex].Type)
-                {
-                    if(counter > 0)
-                    {
-                        counter--;
-                    }
-                    subTokensIndex = 0;
-                }
-                else if (tokens[i].Type == subTokens[subTokensIndex].Type)
-                {
-                    subTokensIndex++;
-                    counter++;
-                }
-            }
-
-            return false;
         }
 
         public static int ContainedTokensStartIndex(List<Token> tokens, List<Token> subTokens)
@@ -519,7 +485,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
                 else if (i == tokens.Count)
                 {
-                    return index;
+                    return -1;
                 }
 
                 if (tokens[i].Type != subTokens[subTokensIndex].Type)
@@ -555,10 +521,10 @@ namespace LogicalExpressionInterpreter.LogicControl
             for (int i = 0; i < functions.Count; i++)
             {
                 var functionTokens = Tokenizer.Tokenize(functions[i].GetExpression());
+                var functionIndex = ContainedTokensStartIndex(tokens, functionTokens);
 
-                if (ContainsTokens(tokens, functionTokens))
+                if (functionIndex != -1)
                 {
-                    int functionIndex = ContainedTokensStartIndex(tokens, functionTokens);
                     string functionName = functions[i].GetCombinedName();
                     return evolutionExpression + "  <--or-->  " + FormatResult(tokens, functionTokens, functionName,functionIndex);
                 }
