@@ -1,6 +1,7 @@
 ﻿using LogicalExpressionInterpreter.BinaryTree;
 using LogicalExpressionInterpreter.Parsing;
 using LogicalExpressionInterpreter.UtilityClasses;
+using System.Diagnostics;
 
 namespace LogicalExpressionInterpreter.LogicControl
 {
@@ -9,9 +10,11 @@ namespace LogicalExpressionInterpreter.LogicControl
         private static Random _random = new Random();
         private static List<List<string>> _population = new();
         private static int _expressionVariableCount = 0;
+        private static Stopwatch _stopwatch = new Stopwatch();
 
         public static string ConstructBooleanExpression(string[,] truthTable)
         {
+            _stopwatch.Start();
             _expressionVariableCount = truthTable.GetLength(1) - 1;
 
             List<string> booleanExpression = GenerateRandomBooleanExpression(_expressionVariableCount);
@@ -20,7 +23,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             _population.Add(booleanExpression);
 
-            while (fitness < truthTable.GetLength(0))
+            while (fitness < truthTable.GetLength(0) && _stopwatch.Elapsed < TimeSpan.FromSeconds(5))
             {
                 // Create a new generation of boolean expressions by applying evolutionary operators to the population
                 List<List<string>> newGeneration = ApplyEvolutionaryOperators(_population);
@@ -39,6 +42,12 @@ namespace LogicalExpressionInterpreter.LogicControl
                 _population.AddRange(newGeneration);
             }
 
+            if(_stopwatch.Elapsed >= TimeSpan.FromSeconds(5))
+            {
+                _population.Clear();
+                return "";
+            }
+
             return Utility.ConcatWithSpaces(booleanExpression);
         }
 
@@ -51,8 +60,9 @@ namespace LogicalExpressionInterpreter.LogicControl
                 string expression = Utility.ConcatWithSpaces(booleanExpression);
 
                 var tokens = Tokenizer.Tokenize(expression);
+                var postfixTokens = Parser.ConvertToPostfix(tokens);
 
-                var root = Tree.CreateTree(tokens, tableValues);
+                var root = Tree.CreateTree(postfixTokens, tableValues);
                 var result = Tree.Evaluate(root);
 
                 // Evaluate the boolean expression and compare the output to the expected result
@@ -70,18 +80,17 @@ namespace LogicalExpressionInterpreter.LogicControl
             List<string> booleanExpression = new();
 
             int letterValue = 97;
-            
+
             for (int i = 0; i < operandCount; i++)
             {
                 char operand = (char)letterValue;
-                booleanExpression.Add(_random.Next(0, 2) == 0 ? operand.ToString() : operand + "!");
+                booleanExpression.Add(_random.Next(0, 2) == 0 ? operand.ToString() : "!" + operand);
+                if (i != operandCount - 1)
+                {
+                    booleanExpression.Add(_random.Next(0, 2) == 0 ? "&&" : "||");
+                }
+                
                 letterValue++;
-            }
-
-            int operatorCount = operandCount - 1;
-            for (int i = 0; i < operatorCount; i++)
-            {
-                booleanExpression.Add(_random.Next(0, 2) == 0 ? "&&" : "||");
             }
 
             return booleanExpression;

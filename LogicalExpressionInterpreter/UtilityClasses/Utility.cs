@@ -406,10 +406,10 @@
         {
             if(Contains(operand,'!'))
             {
-                return operand[0].ToString();
+                return operand[1].ToString();
             }
 
-            return operand + "!";
+            return "!" + operand;
         }
 
         public static string[] GetRowItemsWithoutLast(string[,] input, int rowIndex)
