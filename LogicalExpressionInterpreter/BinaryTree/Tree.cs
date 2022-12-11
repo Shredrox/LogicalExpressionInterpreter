@@ -144,7 +144,7 @@ namespace LogicalExpressionInterpreter.BinaryTree
             return nodes.Pop();
         }
 
-        public static int TreeDepth(Node root)
+        public static int TreeDepth(Node? root)
         {
             if (root == null)
             {

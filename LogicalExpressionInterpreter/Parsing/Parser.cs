@@ -1,5 +1,4 @@
 ﻿using LogicalExpressionInterpreter.UtilityClasses;
-using System.Xml.Linq;
 
 namespace LogicalExpressionInterpreter.Parsing
 {
@@ -17,7 +16,7 @@ namespace LogicalExpressionInterpreter.Parsing
             return 0;
         }
 
-        public static List<Token>? ConvertToPostfix(List<Token> tokens)
+        public static List<Token> ConvertToPostfix(List<Token> tokens)
         {
             ObjectStack<Token> stack = new();
             List<Token> postfixExpression = new();
@@ -39,14 +38,7 @@ namespace LogicalExpressionInterpreter.Parsing
                         postfixExpression.Add(stack.Pop());
                     }
 
-                    if (stack.Count() > 0 && stack.Peek().Type != Token.TokenType.OPEN_PAREN)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        stack.Pop();
-                    }
+                    stack.Pop();
                 }
                 else if (tokens[i].Type == Token.TokenType.NOT
                     || tokens[i].Type == Token.TokenType.AND
