@@ -13,7 +13,7 @@
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="LogicalExpressionInterpreter" Height="850" Width="1200"
-        Background="#FF1D190A" WindowStartupLocation="CenterScreen"
+        Background="#FF0C0F14" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" WindowStyle="None">
 
     <Grid>
@@ -30,16 +30,16 @@
             Grid.Row="0"
             Grid.ColumnSpan="2"
             Height="50"
-            Background="#FF12100D"
+            Background="#FF151A1D"
             MouseDown="Card_MouseDown">
 
             <Grid>
                 <TextBlock 
-                    Text="Logic Exrpession Interpreter"
+                    Text="Logic Expression Interpreter"
                     Grid.Column="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-                    Foreground="White"
+                    Foreground="#FFF0F01C"
                     FontSize="25"
                     Margin="10"/>
 
@@ -57,7 +57,7 @@
                         Padding="0"
                         Margin="360 0 10 0"
                         HorizontalAlignment="Right"
-                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}"/>
+                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}" Background="#FFF0F01C" BorderBrush="#FFF0F01C"/>
 
                     <Button 
                         Content="X"  
@@ -68,7 +68,7 @@
                         Padding="0"
                         Margin="0 0 10 0"
                         HorizontalAlignment="Right"
-                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}"/>
+                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}" Background="#FFF0F01C" BorderBrush="#FFF0F01C"/>
 
                 </StackPanel>
             </Grid>
@@ -78,43 +78,86 @@
             x:Name="MainPanel"
             Grid.Column="0"
             Grid.Row="1"
-            Margin="10,0,0,27">
+            Margin="27,0,0,27">
 
             <TextBlock 
                 Name="CommandText" 
                 Text="Enter Command: "
-                Foreground="White"
+                Foreground="#FFF0F01C"
                 HorizontalAlignment="Left"
                 FontSize="25"
                 Margin="20"/>
 
             <TextBox 
                 Name="CommandInput" 
-                Background="#FF7B3B3B"
-                Foreground="White"
+                Background="#FF151A1D"
+                Foreground="#FFF0F01C"
                 FontSize="20"
-                Margin="20,0,20,20" 
+                Margin="20,0,20,10" 
                 Height="100"
                 TextWrapping="Wrap"
                 AcceptsReturn="False"
                 VerticalScrollBarVisibility="Auto"
-                PreviewKeyDown="CommandInput_PreviewKeyDown" CaretBrush="#FFDAFF00"/>
+                PreviewKeyDown="CommandInput_PreviewKeyDown" 
+                CaretBrush="#FFF0F01C" 
+                SelectionBrush="#FFF0F01C" 
+                BorderBrush="#FFF0F01C"/>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <TextBlock
                     Name="TextDisplay"
-                    Foreground="White"
+                    Foreground="#FFF0F01C"
                     Padding="20"
                     Height="300"
-                    Width="380">
+                    Width="360">
                     <TextBlock.Background>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF120B0B" Offset="0.008"/>
-                            <GradientStop Color="#FF2D1313" Offset="1"/>
+                            <GradientStop Color="#FF151A1D" Offset="1"/>
                         </LinearGradientBrush>
                     </TextBlock.Background>
                 </TextBlock>
             </ScrollViewer>
+
+            <Border 
+                Width="360" 
+                Height="280" 
+                Background="Transparent"
+                BorderBrush="#FFF0F01C" 
+                BorderThickness="2" 
+                Opacity="1.0"
+                Margin="0,12,0,0">
+
+                <TextBlock 
+                    Name="CommandList"
+                    Foreground="#FFF0F01C"
+                    Padding="20">
+                    
+                    <Label 
+                        Content="Commands: "
+                        Foreground="Gold"
+                        FontSize="20"
+                        Margin="0,0,0,5"
+                        Padding="0"/>  
+                    
+                    <LineBreak/>
+                    DEFINE - defines a function
+                    <LineBreak/>
+                    REMOVE - removes a function
+                    <LineBreak/>
+                    SOLVE - solves a function with given bool parameters
+                    <LineBreak/>
+                    ALL - creates a truth table for a function
+                    <LineBreak/>
+                    FIND - finds a function from a given truth table
+                    <LineBreak/>
+                    PRINTALL - prints all functions
+                    <LineBreak/>
+                    DISPLAY - displays function binary tree
+                    <LineBreak/>
+                    EXIT - closes the program
+                </TextBlock>
+            </Border>
         </StackPanel>
 
         <Canvas 
@@ -127,7 +170,7 @@
             <Canvas.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black"/>
-                    <GradientStop Color="#FF381818" Offset="1"/>
+                    <GradientStop Color="#FF151A1D" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
 

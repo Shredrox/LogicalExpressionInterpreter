@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:GDI"
         mc:Ignorable="d"
         Title="TruthTableWindow" Height="470" Width="800"
-        Background="#FF1D190A" WindowStartupLocation="CenterScreen"
+        Background="#FF0C0F14" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" WindowStyle="None">
 
     <Grid>
@@ -20,7 +20,7 @@
             Grid.Row="0"
             Grid.ColumnSpan="2"
             Height="50"
-            Background="#FF12100D"
+            Background="#FF151A1D"
             MouseDown="Card_MouseDown">
 
             <Grid>
@@ -29,7 +29,7 @@
                     Grid.Column="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-                    Foreground="White"
+                    Foreground="#FFF0F01C"
                     FontSize="25"
                     Margin="10"/>
 
@@ -47,7 +47,7 @@
                         Padding="0"
                         Margin="360 0 10 0"
                         HorizontalAlignment="Right"
-                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}"/>
+                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}" Background="#FFF0F01C" BorderBrush="#FFF0F01C"/>
 
                     <Button 
                         Content="X"  
@@ -58,7 +58,7 @@
                         Padding="0"
                         Margin="0 0 10 0"
                         HorizontalAlignment="Right"
-                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}"/>
+                        Style="{StaticResource MaterialDesignFlatSecondaryMidBgButton}" Background="#FFF0F01C" BorderBrush="#FFF0F01C"/>
 
                 </StackPanel>
             </Grid>
@@ -68,7 +68,7 @@
             Name="TruthTableBox"
             Grid.Row="1"
             Margin="10,10,10,0"
-            Foreground="White"
+            Foreground="#FFF0F01C"
             FontSize="20"
             TextWrapping="NoWrap"
             IsEnabled="True"
@@ -76,7 +76,7 @@
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Auto"
             IsReadOnlyCaretVisible="False"
-            Cursor="Arrow"/>
+            Cursor="Arrow" CaretBrush="#FFF0F01C" SelectionBrush="#FFF0F01C"/>
         
     </Grid>
 </Window>
