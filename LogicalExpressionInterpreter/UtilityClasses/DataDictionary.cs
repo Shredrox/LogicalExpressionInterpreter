@@ -2,31 +2,25 @@
 {
     public class DataDictionary<TKey,TValue>
     {
-        private List<TKey> keys;
-        private List<TValue> values;
-        private List<DataPair<TKey, TValue>> items;
+        private List<DataPair<TKey, TValue>> _dataEntries;
 
         public DataDictionary() 
         {
-            keys = new List<TKey>();
-            values = new List<TValue>();
-            items = new List<DataPair<TKey,TValue>>();
+            _dataEntries = new List<DataPair<TKey,TValue>>();
         }
 
         public void Add(TKey key, TValue value)
         {
-            items.Add(new DataPair<TKey,TValue>(key, value));     
-            keys.Add(key);
-            values.Add(value);
+            _dataEntries.Add(new DataPair<TKey,TValue>(key, value));     
         }
 
         public TValue? GetValue(TKey key)
         {
-            for (int i = 0; i < items.Count; i++)
+            for (int i = 0; i < _dataEntries.Count; i++)
             {
-                if (items[i].GetKey().Equals(key))
+                if (_dataEntries[i].GetKey().Equals(key))
                 {
-                    return items[i].GetValue();
+                    return _dataEntries[i].GetValue();
                 }
             }
 
@@ -35,12 +29,15 @@
 
         public bool ContainsKey(TKey key)
         {
-            return keys.Contains(key);
-        }
+            for (int i = 0; i < _dataEntries.Count; i++)
+            {
+                if (_dataEntries[i].GetKey().Equals(key))
+                {
+                    return true;
+                }
+            }
 
-        public bool ContainsValue(TValue value)
-        {
-            return values.Contains(value);
+            return false;
         }
     }
 }
