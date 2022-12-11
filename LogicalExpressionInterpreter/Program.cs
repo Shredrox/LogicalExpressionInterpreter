@@ -6,7 +6,7 @@ namespace LogicalExpressionInterpreter
     {
         static void Main(string[] args)
         {
-            //LogicController.Run();
+            LogicController.Run();
         }
     }
 }

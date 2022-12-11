@@ -55,32 +55,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             return userFunctions.Count;
         }
 
-        public static void AddUserFunction(LogicFunction function)
-        {
-            userFunctions.Add(function);
-        }
-
-        public static List<string> GetFunctionsInfo()
-        {
-            List<string> functionsInfo = new List<string>();
-            string line;
-
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
-                if (userFunctions[i].GetNestedFunctions().Count != 0)
-                {
-                    line = i + 1 + ". "
-                        + userFunctions[i].GetName() + ": "
-                        + userFunctions[i].GetNestedFunctionsNames()
-                        + userFunctions[i].GetExpression();
-                }
-                functionsInfo.Add(line);
-            }
-
-            return functionsInfo;
-        }
-
         public static void Run()
         {
             if (File.Exists(path))
@@ -127,13 +101,67 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 switch (Utility.ToUpper(inputSplit[0]))
                 {
-                    case "DEFINE": AddFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, path); break;
-                    case "REMOVE": RemoveFunction(inputSplit[1]); DataControl.SaveToFile(userFunctions, path); break;
+                    case "DEFINE": 
+                        {
+                            AddFunction(inputSplit[1], out string errorMsg);
+
+                            if (errorMsg != "")
+                            {
+                                Console.WriteLine(errorMsg);
+                            }
+                            else
+                            {
+                                
+                            }
+                            
+                            break;
+                        }
+                    case "REMOVE": RemoveFunction(inputSplit[1]); SaveFunctions(); break;
                     case "PRINTALL": PrintFunctions(); break;
-                    case "SOLVE": SolveFunction(inputSplit[1]); break;
-                    case "ALL": CreateTruthTable(inputSplit[1]); break;
-                    case "FIND": Console.WriteLine(FindFunction(inputLines)); break;
-                    case "EXIT": DataControl.SaveToFile(userFunctions, path); return;
+                    case "SOLVE": 
+                        {
+                            string result = SolveFunction(inputSplit[1], out string errorMsg);
+                            if (errorMsg != "")
+                            {
+                                Console.WriteLine(errorMsg);
+                            }
+                            else
+                            {
+                                Console.WriteLine(result);
+                            }
+
+                            break;
+                        } 
+                    case "ALL": 
+                        {
+                            CreateTruthTable(inputSplit[1], out LogicFunction? functionWithCreatedTable); 
+
+                            if(functionWithCreatedTable == null)
+                            {
+                                Console.WriteLine("This function doesn't exist.");
+                            }
+                            else
+                            {
+                                PrintTruthTable(functionWithCreatedTable);
+                            }
+
+                            break;
+                        } 
+                    case "FIND": 
+                        {
+                            string result = FindFunction(inputLines, out string errorMsg);
+                            if(errorMsg != "")
+                            {
+                                Console.WriteLine(errorMsg);
+                            }
+                            else
+                            {
+                                Console.WriteLine(result);
+                            }
+
+                            break;
+                        } 
+                    case "EXIT": SaveFunctions(); return;
                     default: Console.WriteLine("Invalid Command."); break;
                 }
 
@@ -141,21 +169,19 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static void AddFunction(string input)
+        public static void AddFunction(string input, out string errorMsg)
         {
+            errorMsg = "";
             string[] inputSplit = Utility.Split(input, ':');
             string[] splitName = Utility.Split(inputSplit[0], '(');
             string name = splitName[0];
 
             var tokens = Tokenizer.Tokenize(inputSplit[1]);
 
-            for (int i = 0; i < userFunctions.Count; i++)
+            if (FunctionExists(name))
             {
-                if (userFunctions[i].GetName() == name) 
-                {
-                    Console.WriteLine("A function with this name already exists.");
-                    return;
-                }
+                errorMsg = "A function with this name already exists.";
+                return;
             }
 
             string[] operands = Utility.Split(Utility.TrimEnd(splitName[1], ')'), ',');
@@ -176,13 +202,11 @@ namespace LogicalExpressionInterpreter.LogicControl
                     nestedFunctionName = spl[0];
                     nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
                     literalCount += nestedFunctionOperands.Length;
+                    var nestedFunction = ChooseFunction(nestedFunctionName);
 
-                    for (int k = 0; k < userFunctions.Count; k++)
+                    if (nestedFunction != null)
                     {
-                        if (userFunctions[k].GetName() == nestedFunctionName)
-                        {
-                            nestedFunctions.Add(userFunctions[k]);
-                        }
+                        nestedFunctions.Add(nestedFunction);
                     }
                 }
             }
@@ -197,12 +221,12 @@ namespace LogicalExpressionInterpreter.LogicControl
             
             if (literalCount != operands.Length)
             {
-                Console.WriteLine("Invalid number of operands.");
+                errorMsg = "Invalid number of operands.";
                 return;
             }
             else if (hasNestedFunction && nestedFunctions.Count == 0)
             {
-                Console.WriteLine("Nested Function: " + nestedFunctionName + " doesn't exist.");
+                errorMsg = "Nested Function: " + nestedFunctionName + " doesn't exist.";
                 return;
             }
 
@@ -211,50 +235,13 @@ namespace LogicalExpressionInterpreter.LogicControl
             userFunctions.Add(newFunction);
         }
 
-        public static void RemoveFunction(string input)
+        public static string SolveFunction(string input, out string errorMsg)
         {
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetName() == input)
-                {
-                    userFunctions.RemoveAt(i);
-                }
-            }
-        }
-
-        public static void PrintFunctions()
-        {
+            errorMsg = "";
             if (userFunctions.Count == 0)
             {
-                Console.WriteLine("No added functions.");
-                return;
-            }
-
-            Console.WriteLine("Current Functions: ");
-
-            string line;
-
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
-                if (userFunctions[i].GetNestedFunctions().Count != 0)
-                {
-                    line = i + 1 + ". " 
-                        + userFunctions[i].GetName() + ": " 
-                        + userFunctions[i].GetNestedFunctionsNames() 
-                        + userFunctions[i].GetExpression(); 
-                } 
-
-                Console.WriteLine(line);
-            }
-        }
-
-        public static void SolveFunction(string input)
-        {
-            if (userFunctions.Count == 0)
-            {
-                Console.WriteLine("No added functions to solve. Add functions and try again.");
-                return;
+                errorMsg = "No added functions to solve. Add functions and try again.";
+                return "";
             }
 
             string[] splitName = Utility.Split(input, '(');
@@ -266,17 +253,20 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             if(boolValues == null)
             {
-                Console.WriteLine("Invalid bool input. Try Again.");
-                return;
+                errorMsg = "Invalid bool input. Try Again.";
+                return "";
             }
 
             var chosenFunction = ChooseFunction(name);
+            if(chosenFunction == null)
+            {
+                errorMsg = "Function doesn't exist";
+                return "";
+            }
 
             if (chosenFunction.ContainsResult(Utility.Concat(boolValues)))
             {
-                Console.WriteLine("Result: " + chosenFunction.GetResult(Utility.Concat(boolValues)));
-                Console.WriteLine();
-                return;
+                return "Result: " + chosenFunction.GetResult(Utility.Concat(boolValues));
             }
 
             var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
@@ -286,8 +276,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             var result = Tree.Evaluate(root);
             chosenFunction.AddResult(Utility.Concat(boolValues), result);
 
-            Console.WriteLine("Result: " + result);
-            Console.WriteLine();
+            return "Result: " + result;
         }
 
         public static LogicFunction? ChooseFunction(string name) 
@@ -303,21 +292,76 @@ namespace LogicalExpressionInterpreter.LogicControl
             return null;
         }
 
-        public static void CreateTruthTable(string input)
+        public static void RemoveFunction(string input)
         {
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                if (userFunctions[i].GetName() == input)
+                {
+                    userFunctions.RemoveAt(i);
+                }
+            }
+        }
+
+        public static List<string>? GetFunctionsInfo()
+        {
+            if (userFunctions.Count == 0)
+            {
+                return null;
+            }
+
+            List<string> functionsInfo = new();
+            functionsInfo.Add("Current Functions: ");
+            functionsInfo.Add("\n");
+            string line;
+
+            for (int i = 0; i < userFunctions.Count; i++)
+            {
+                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
+                if (userFunctions[i].GetNestedFunctions().Count != 0)
+                {
+                    line = i + 1 + ". "
+                        + userFunctions[i].GetName() + ": "
+                        + userFunctions[i].GetNestedFunctionsNames()
+                        + userFunctions[i].GetExpression();
+                }
+                functionsInfo.Add(line);
+                functionsInfo.Add("\n");
+            }
+
+            return functionsInfo;
+        }
+
+        public static void PrintFunctions()
+        {
+            var functionsInfo = GetFunctionsInfo();
+            if (functionsInfo == null)
+            {
+                Console.WriteLine("No added functions.");
+                return;
+            }
+
+            for (int i = 0; i < functionsInfo.Count; i++)
+            {
+                Console.Write(functionsInfo[i]);
+            }
+        }
+
+        public static void CreateTruthTable(string input, out LogicFunction? functionWithCreatedTable)
+        {
+            functionWithCreatedTable = null;
             string[] splitName = Utility.Split(input, '(');
             string name = splitName[0];
 
             var chosenFunction = ChooseFunction(name);
             if(chosenFunction == null)
             {
-                Console.WriteLine("This function doesn't exist.");
                 return;
             }
 
             if (chosenFunction.GetTruthTable() != null)
             {
-                PrintTruthTable(chosenFunction);
+                functionWithCreatedTable = chosenFunction;
                 return;
             }
 
@@ -365,7 +409,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             chosenFunction.SetTruthTable(combination);
-            PrintTruthTable(chosenFunction);
+            functionWithCreatedTable = chosenFunction;     
         }
 
         public static void PrintTruthTable(LogicFunction logicFunction)
@@ -387,8 +431,9 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static string FindFunction(List<string> input)
+        public static string FindFunction(List<string> input, out string errorMsg)
         {
+            errorMsg = "";
             var splitLine = Utility.Split(input[0], ' ', 2);
             input[0] = splitLine[1];
             string parameter = splitLine[1];
@@ -399,7 +444,8 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 if (!File.Exists(parameter))
                 {
-                    return "File doesn't exist.";
+                    errorMsg = "File doesn't exist.";
+                    return "";
                 }
 
                 List<string> fileContent = new();
@@ -449,14 +495,38 @@ namespace LogicalExpressionInterpreter.LogicControl
                 { "false", "false", "true", "false"},
                 { "false", "true", "false", "false"},
                 { "false", "true", "true", "false"},
-                { "true", "false", "false", "false"},
+                { "true", "false", "false", "true"},
                 { "true", "false", "true", "false"},
                 { "true", "true", "false", "false"},
-                { "true", "true", "true", "true"},
+                { "true", "true", "true", "false"},
+            };
+
+            string[,] table2 =
+            {
+                { "true", "true", "true", "true", "false"},
+                { "true", "true", "true", "false", "false"},
+                { "true", "true", "false", "true", "false"},
+                { "true", "true", "false", "false", "false"},
+                { "true", "false", "true", "true", "false"},
+                { "true", "false", "true", "false", "false"},
+                { "true", "false", "false", "true", "false"},
+                {"true","false","false","false","false" },
+                {"false", "true","true","true","false" },
+                {"false", "true","true","false","false" },
+                {"false","true","false","true","false" },
+                {"false","true","false","false","true" },
+                {"false","false","true","true","false" },
+                {"false", "false","true","false","false" },
+                {"false","false","false","true","false" },
+                {"false","false","false","false","false" }
             };
 
             var foundFunction = Evolution.ConstructBooleanExpression(table);
-            var result = Parser.ConvertToInfix(foundFunction);
+            if(foundFunction == "")
+            {
+                return "No function was found.";
+            }
+            //var result = Parser.ConvertToInfix(foundFunction);
 
             var functions = GetFunctionsWithOperandCount(table.GetLength(1)-1);
             List<LogicFunction> test = new();
@@ -464,7 +534,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             test.Add(new LogicFunction("test2", "a || b", "test2(a,b)"));
             test.Add(new LogicFunction("test3", "a & b & c", "test3(a,b,c)"));
 
-            var finalResult = CombineResult(result, functions);
+            var finalResult = CombineResult(foundFunction, functions);
 
             return finalResult;
         }
