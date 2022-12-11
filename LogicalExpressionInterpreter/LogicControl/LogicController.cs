@@ -132,7 +132,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     case "PRINTALL": PrintFunctions(); break;
                     case "SOLVE": SolveFunction(inputSplit[1]); break;
                     case "ALL": CreateTruthTable(inputSplit[1]); break;
-                    case "FIND": FindFunction(inputLines); break;
+                    case "FIND": Console.WriteLine(FindFunction(inputLines)); break;
                     case "EXIT": DataControl.SaveToFile(userFunctions, path); return;
                     default: Console.WriteLine("Invalid Command."); break;
                 }
@@ -387,7 +387,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static void FindFunction(List<string> input)
+        public static string FindFunction(List<string> input)
         {
             var splitLine = Utility.Split(input[0], ' ', 2);
             input[0] = splitLine[1];
@@ -399,8 +399,7 @@ namespace LogicalExpressionInterpreter.LogicControl
             {
                 if (!File.Exists(parameter))
                 {
-                    Console.WriteLine("File doesn't exist.");
-                    return;
+                    return "File doesn't exist.";
                 }
 
                 List<string> fileContent = new();
@@ -421,7 +420,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 searchedFunction = SearchForFunction(input, ',');
             }
 
-            Console.WriteLine("Found Function: " + searchedFunction);
+            return "Result: " + searchedFunction;
         }
 
         public static string SearchForFunction(List<string> input, char inputSeparator)
@@ -470,6 +469,43 @@ namespace LogicalExpressionInterpreter.LogicControl
             return finalResult;
         }
 
+        public static string CombineResult(string evolutionExpression, List<LogicFunction> functions)
+        {
+            var tokens = Tokenizer.Tokenize(evolutionExpression);
+
+            for (int i = 0; i < functions.Count; i++)
+            {
+                var functionTokens = Tokenizer.Tokenize(functions[i].GetExpression());
+                var functionIndex = ContainedTokensStartIndex(tokens, functionTokens);
+
+                if (functionIndex != -1)
+                {
+                    string functionName = functions[i].GetCombinedName();
+                    return evolutionExpression + "  <--or-->  " + FormatResult(tokens, functionTokens, functionName,functionIndex);
+                }
+            }
+
+            return evolutionExpression;
+        }
+
+        public static string FormatResult(List<Token> tokens, List<Token> subTokens, string functionName, int index)
+        {
+            string result = "";
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if (i == index)
+                {
+                    result += functionName + " ";
+                    i += subTokens.Count - 1;
+                    continue;
+                }
+                result += tokens[i].Value + " ";
+            }
+
+            return result;
+        }
+
         public static int ContainedTokensStartIndex(List<Token> tokens, List<Token> subTokens)
         {
             int counter = 0;
@@ -512,43 +548,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             return -1;
-        }
-
-        public static string CombineResult(string evolutionExpression, List<LogicFunction> functions)
-        {
-            var tokens = Tokenizer.Tokenize(evolutionExpression);
-
-            for (int i = 0; i < functions.Count; i++)
-            {
-                var functionTokens = Tokenizer.Tokenize(functions[i].GetExpression());
-                var functionIndex = ContainedTokensStartIndex(tokens, functionTokens);
-
-                if (functionIndex != -1)
-                {
-                    string functionName = functions[i].GetCombinedName();
-                    return evolutionExpression + "  <--or-->  " + FormatResult(tokens, functionTokens, functionName,functionIndex);
-                }
-            }
-
-            return evolutionExpression;
-        }
-
-        public static string FormatResult(List<Token> tokens, List<Token> subTokens, string functionName, int index)
-        {
-            string result = "";
-
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                if (i == index)
-                {
-                    result += functionName + " ";
-                    i += subTokens.Count - 1;
-                    continue;
-                }
-                result += tokens[i].Value + " ";
-            }
-
-            return result;
         }
     }
 }
