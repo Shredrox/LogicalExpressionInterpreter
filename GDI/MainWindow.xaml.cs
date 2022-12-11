@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -43,23 +42,10 @@ namespace GDI
                 case "PRINTALL": PrintFunctions(); break;
                 case "SOLVE": SolveFunction(inputSplit[1]); break;
                 case "ALL": CreateTruthTable(inputSplit[1]); break;
-                case "DISPLAY": DisplayTree(inputSplit[1]); break; 
-                case "HELP": PrintCommands(); break;
+                case "DISPLAY": DisplayTree(inputSplit[1]); break;
                 case "EXIT": LogicController.SaveFunctions(); this.Close(); return;
                 default: MessageBox.Show("Invalid Command."); break;
             }
-        }
-
-        public void PrintCommands()
-        {
-            TextDisplay.Inlines.Add("DEFINE - defines a function\n");
-            TextDisplay.Inlines.Add("REMOVE - removes a function\n");
-            TextDisplay.Inlines.Add("SOLVE - solves a function with given bool parameters\n");
-            TextDisplay.Inlines.Add("ALL - creates a truth table for a function\n");
-            TextDisplay.Inlines.Add("FIND - finds a function from a given truth table\n");
-            TextDisplay.Inlines.Add("PRINTALL - prints all functions\n");
-            TextDisplay.Inlines.Add("DISPLAY - displays function binary tree\n");
-            TextDisplay.Inlines.Add("EXIT - closes the program\n");
         }
 
         public void AddFunction(string input)
@@ -312,43 +298,6 @@ namespace GDI
             truthTableWindow.Show();
         }
 
-        public void FindFunction(List<string> input)
-        {
-            var splitLine = Utility.Split(input[0], ' ', 2);
-            input[0] = splitLine[1];
-            string parameter = splitLine[1];
-
-            string searchedFunction;
-
-            if (System.IO.Path.HasExtension(parameter))
-            {
-                if (!File.Exists(parameter))
-                {
-                    MessageBox.Show("File doesn't exist.");
-                    return;
-                }
-
-                List<string> fileContent = new();
-
-                using (var reader = new StreamReader(parameter))
-                {
-                    while (!reader.EndOfStream)
-                    {
-                        var line = reader.ReadLine();
-                        fileContent.Add(line);
-                    }
-                }
-
-                searchedFunction = LogicController.SearchForFunction(fileContent, ',');
-            }
-            else
-            {
-                searchedFunction = LogicController.SearchForFunction(input, ',');
-            }
-
-            TextDisplay.Inlines.Add("Result: " + searchedFunction);
-        }
-
         private double heightDivide;
         private double widthDivide;
         private void DisplayTree(string functionName)
@@ -376,6 +325,11 @@ namespace GDI
 
         private void AddNodeToCanvas(Node? root, double xOffset, double yOffset, double xDivider, int nodePos)
         {
+            if(root == null)
+            {
+                return;
+            }
+
             if (root.GetLeft() != null)
             {
                 AddNodeToCanvas(root.GetLeft(), xOffset + widthDivide / (xDivider * 1.3d), yOffset + heightDivide * 2, xDivider * 1.3d, 2);
@@ -437,57 +391,68 @@ namespace GDI
         //Window functions
         private void CommandInput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Return)
+            if (e.Key != Key.Return)
             {
-                if (Utility.StringIsNullOrEmpty(CommandInput.Text))
+                return;
+            }
+
+            if (Utility.StringIsNullOrEmpty(CommandInput.Text))
+            {
+                return;
+            }
+
+            string input = Utility.TrimEnd(CommandInput.Text, '\n');
+            string[] split = Utility.Split(input, '\r');
+
+            for (int i = 0; i < split.Length; i++)
+            {
+                if (Utility.StringIsNullOrEmpty(split[i]))
                 {
-                    return;
+                    continue;
                 }
 
-                string input = Utility.TrimEnd(CommandInput.Text, '\n');
-                string[] split = Utility.Split(input, '\r');
+                split[i] = Utility.TrimStart(split[i], '\n');
+            }
 
-                for (int i = 0; i < split.Length; i++)
+            CheckForFindCommand(split);
+
+            if (containsFIND)
+            {
+                CommandInput.AcceptsReturn = true;
+
+                if (split[^1] == null)
                 {
-                    if (Utility.StringIsNullOrEmpty(split[i]))
+                    for (int i = 0; i < split.Length; i++)
                     {
-                        continue;
-                    }
-
-                    split[i] = Utility.TrimStart(split[i], '\n');
-                }
-
-                CheckForFindCommand(split);
-
-                if (containsFIND)
-                {
-                    CommandInput.AcceptsReturn = true;
-
-                    if (split[^1] == null)
-                    {
-                        for (int i = 0; i < split.Length; i++)
+                        if (Utility.StringIsNullOrEmpty(split[i]))
                         {
-                            if (Utility.StringIsNullOrEmpty(split[i]))
-                            {
-                                continue;
-                            }
-
-                            findCommand.Add(split[i]);
+                            continue;
                         }
 
-                        FindFunction(findCommand);
-                        findCommand.Clear();
-                        containsFIND = false;
-                        CommandInput.AcceptsReturn = false;
-                        CommandInput.Clear();
+                        findCommand.Add(split[i]);
                     }
 
-                    return;
+                    string result = LogicController.FindFunction(findCommand);
+                    if (result == "File doesn't exist.")
+                    {
+                        MessageBox.Show(result);
+                    }
+                    else
+                    {
+                        TextDisplay.Inlines.Add(result);
+                    }
+
+                    findCommand.Clear();
+                    containsFIND = false;
+                    CommandInput.AcceptsReturn = false;
+                    CommandInput.Clear();
                 }
 
-                ProcessInput(split[^1]);
-                CommandInput.Clear();
+                return;
             }
+
+            ProcessInput(split[^1]);
+            CommandInput.Clear();
         }
 
         private void Card_MouseDown(object sender, MouseButtonEventArgs e)
