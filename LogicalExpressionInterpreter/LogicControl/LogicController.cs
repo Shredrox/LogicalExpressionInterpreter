@@ -144,19 +144,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             return matchingFunctions;
         }
 
-        public static bool FunctionExists(string name)
-        {
-            for (int i = 0; i < _userFunctions.Count; i++)
-            {
-                if (_userFunctions[i].GetName() == name)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public static void AddFunction(string input, out string errorMsg)
         {
             errorMsg = "";
@@ -166,7 +153,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             var tokens = Tokenizer.Tokenize(inputSplit[1]);
 
-            if (FunctionExists(name))
+            if (ChooseFunction(name) != null)
             {
                 errorMsg = "A function with this name already exists.";
                 return;
