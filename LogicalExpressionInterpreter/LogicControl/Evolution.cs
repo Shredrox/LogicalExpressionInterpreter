@@ -44,6 +44,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             if(_stopwatch.Elapsed >= TimeSpan.FromSeconds(5))
             {
+                _stopwatch.Reset();
                 _population.Clear();
                 return "";
             }

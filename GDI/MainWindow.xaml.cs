@@ -87,17 +87,15 @@ namespace GDI
             }
         }
 
-        static bool containsFIND = false;
         static List<string> findCommand = new();
-        public static void CheckForFindCommand(string[] input)
+        public static bool ContainsFindCommand(string[] input)
         {
             if (Utility.ToUpper(Utility.Split(input[0], ' ')[0]) == "FIND")
             {
-                containsFIND = true;
-                return;
+                return true;
             }
 
-            containsFIND = false;
+            return false;
         }
 
         //Window functions
@@ -126,9 +124,7 @@ namespace GDI
                 split[i] = Utility.TrimStart(split[i], '\n');
             }
 
-            CheckForFindCommand(split);
-
-            if (containsFIND)
+            if (ContainsFindCommand(split))
             {
                 CommandInput.AcceptsReturn = true;
 
@@ -155,7 +151,6 @@ namespace GDI
                     }
                     
                     findCommand.Clear();
-                    containsFIND = false;
                     CommandInput.AcceptsReturn = false;
                     CommandInput.Clear();
                 }
@@ -216,11 +211,11 @@ namespace GDI
 
             line = "";
 
-            for (int row = 0; row < logicFunction.GetTruthTable().GetLength(1); row++)
+            for (int row = 0; row < logicFunction.GetTruthTable().GetLength(0); row++)
             {
-                for (int col = 0; col < logicFunction.GetTruthTable().GetLength(0); col++)
+                for (int col = 0; col < logicFunction.GetTruthTable().GetLength(1); col++)
                 {
-                    line += logicFunction.GetTruthTable()[col, row] + "\t| ";
+                    line += logicFunction.GetTruthTable()[row, col] + "\t| ";
                 }
 
                 lines.Add(line + "\n"); 

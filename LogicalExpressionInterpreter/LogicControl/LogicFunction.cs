@@ -74,26 +74,9 @@ namespace LogicalExpressionInterpreter.LogicControl
             return TruthTable;
         }
 
-        public List<LogicFunction> GetNestedFunctions()
-        {
-            return NestedFunctions;
-        }
-
         public void SetNestedFunctions(List<LogicFunction> nestedFunctions)
         {
             NestedFunctions = nestedFunctions;
-        }
-
-        public string GetNestedFunctionsNames()
-        {
-            string names = "";
-
-            for (int i = 0; i < NestedFunctions.Count; i++)
-            {
-                names += NestedFunctions[i].Name + " ";
-            }
-
-            return names;
         }
 
         public string GetName()

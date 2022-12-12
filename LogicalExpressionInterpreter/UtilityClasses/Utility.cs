@@ -62,21 +62,6 @@
             return splitString;
         }
 
-        public static int SplitSize(string input, char separator)
-        {
-            int counter = 1;
-
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (input[i] == separator)
-                {
-                    counter++;
-                }
-            }
-
-            return counter;
-        }
-
         public static string TrimEnd(string input, char trimChar)
         {
             string trimmedStringReversed = "";
@@ -217,22 +202,6 @@
             return result;
         }
 
-        public static string ConcatWithSpaces(string[] strings)
-        {
-            string result = "";
-            for (int i = 0; i < strings.Length; i++)
-            {
-                if (i+1 == strings.Length)
-                {
-                    result += strings[i];
-                    break;
-                }
-                result += strings[i] + " ";
-            }
-
-            return result;
-        }
-
         public static bool Contains(string input, char c)
         {
             for (int i = 0; i < input.Length; i++)
@@ -285,33 +254,6 @@
             return trimmedString;
         }
 
-        public static string TrimEndValue(string input, char trimChar)
-        {
-            string trimmedStringReversed = "";
-            string trimmedString = "";
-            bool passedWhitespaces = false;
-
-            for (int i = input.Length - 1; i >= 0; i--)
-            {
-                if (input[i] == trimChar && !passedWhitespaces)
-                {
-                    trimmedStringReversed += input[i];
-                    continue;
-                }
-                else
-                {
-                    passedWhitespaces = true;
-                }
-            }
-
-            for (int i = trimmedStringReversed.Length - 1; i >= 0; i--)
-            {
-                trimmedString += trimmedStringReversed[i];
-            }
-
-            return trimmedString;
-        }
-
         public static string ToUpper(string input)
         {
             string upper = "";
@@ -327,28 +269,6 @@
             }
 
             return upper;
-        }
-
-        public static string Substring(string input, int startIndex)
-        {
-            string substring = "";
-            for (int i = startIndex; i < input.Length; i++)
-            {
-                substring += input[i];
-            }
-
-            return substring;
-        }
-
-        public static string Substring(string input, int startIndex, int length)
-        {
-            string substring = "";
-            for (int i = startIndex; i < length; i++)
-            {
-                substring += input[i];
-            }
-
-            return substring;
         }
 
         public static bool StringIsNullOrEmpty(string input)
@@ -386,20 +306,19 @@
             return result;
         }
 
-        public static string[]? CheckBoolInput(string[] input)
+        public static bool CheckBoolInput(string[] input)
         {
-            string[] boolValues = input;
-            for (int i = 0; i < boolValues.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
-                boolValues[i] = Utility.TrimStart(boolValues[i], ' ');
+                input[i] = Utility.TrimStart(input[i], ' ');
 
-                if (!bool.TryParse(boolValues[i], out _))
+                if (!bool.TryParse(input[i], out _))
                 {
-                    return null;
+                    return false;
                 }
             }
 
-            return boolValues;
+            return true;
         }
 
         public static string InvertOperand(string operand)

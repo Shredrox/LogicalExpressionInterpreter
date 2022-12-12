@@ -20,13 +20,8 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
         }
 
-        public static List<LogicFunction>? LoadFromFile(string path)
+        public static List<LogicFunction> LoadFromFile(string path)
         {
-            if (!File.Exists(path))
-            {
-                return null;
-            }
-
             string[] fileLines = File.ReadAllLines(path);
             List<LogicFunction> loadedFunctions = new();
 

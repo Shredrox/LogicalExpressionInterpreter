@@ -6,61 +6,26 @@ namespace LogicalExpressionInterpreter.LogicControl
 {
     public static class LogicController
     {
-        private static List<LogicFunction> userFunctions = new();
+        private static List<LogicFunction> _userFunctions = new();
         //private static string path = "../../UserFunctions.txt";
-        private static string path = "../../../../LogicalExpressionInterpreter/bin/UserFunctions.txt";
+        private static string _path = "../../../../LogicalExpressionInterpreter/bin/UserFunctions.txt";
 
         public static void SaveFunctions()
         {
-            DataControl.SaveToFile(userFunctions, path);
+            DataControl.SaveToFile(_userFunctions, _path);
         }
 
         public static void LoadFunctions()
         {
-            if(File.Exists(path))
+            if(File.Exists(_path))
             {
-                userFunctions = DataControl.LoadFromFile(path);
+                _userFunctions = DataControl.LoadFromFile(_path);
             }
-        }
-
-        public static List<LogicFunction> GetFunctionsWithOperandCount(int operandCount)
-        {
-            List<LogicFunction> matchingFunctions = new();
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetOperands().Count <= operandCount)
-                {
-                    matchingFunctions.Add(userFunctions[i]);
-                }
-            }
-
-            return matchingFunctions;
-        }
-
-        public static bool FunctionExists(string name)
-        {
-            for (int i = 0; i < userFunctions.Count; i++)
-            {
-                if (userFunctions[i].GetName() == name)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static int GetFunctionCount()
-        {
-            return userFunctions.Count;
         }
 
         public static void Run()
         {
-            if (File.Exists(path))
-            {
-                userFunctions = DataControl.LoadFromFile(path);
-            }
+            LoadFunctions();
 
             while (true)
             {
@@ -108,10 +73,6 @@ namespace LogicalExpressionInterpreter.LogicControl
                             if (errorMsg != "")
                             {
                                 Console.WriteLine(errorMsg);
-                            }
-                            else
-                            {
-                                
                             }
                             
                             break;
@@ -167,6 +128,33 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                 Console.WriteLine();
             }
+        }
+
+        public static List<LogicFunction> GetFunctionsWithOperandCount(int operandCount)
+        {
+            List<LogicFunction> matchingFunctions = new();
+            for (int i = 0; i < _userFunctions.Count; i++)
+            {
+                if (_userFunctions[i].GetOperands().Count <= operandCount)
+                {
+                    matchingFunctions.Add(_userFunctions[i]);
+                }
+            }
+
+            return matchingFunctions;
+        }
+
+        public static bool FunctionExists(string name)
+        {
+            for (int i = 0; i < _userFunctions.Count; i++)
+            {
+                if (_userFunctions[i].GetName() == name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static void AddFunction(string input, out string errorMsg)
@@ -232,13 +220,13 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             var newFunction = new LogicFunction(name, expression, inputSplit[0], tokens);
             newFunction.SetNestedFunctions(nestedFunctions);
-            userFunctions.Add(newFunction);
+            _userFunctions.Add(newFunction);
         }
 
         public static string SolveFunction(string input, out string errorMsg)
         {
             errorMsg = "";
-            if (userFunctions.Count == 0)
+            if (_userFunctions.Count == 0)
             {
                 errorMsg = "No added functions to solve. Add functions and try again.";
                 return "";
@@ -249,13 +237,14 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             string valueString = Utility.TrimEnd(splitName[1], ')');
             string[] values = Utility.Split(valueString, ',');
-            var boolValues = Utility.CheckBoolInput(values);
 
-            if(boolValues == null)
+            if(!Utility.CheckBoolInput(values))
             {
                 errorMsg = "Invalid bool input. Try Again.";
                 return "";
             }
+
+            string[] boolValues = values;
 
             var chosenFunction = ChooseFunction(name);
             if(chosenFunction == null)
@@ -274,6 +263,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
             Node root = Tree.CreateTree(postfixTokens, boolValues);
             var result = Tree.Evaluate(root);
+
             chosenFunction.AddResult(Utility.Concat(boolValues), result);
 
             return "Result: " + result;
@@ -281,11 +271,11 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static LogicFunction? ChooseFunction(string name) 
         {
-            for (int i = 0; i < userFunctions.Count; i++)
+            for (int i = 0; i < _userFunctions.Count; i++)
             {
-                if (userFunctions[i].GetName() == name)
+                if (_userFunctions[i].GetName() == name)
                 {
-                    return userFunctions[i];
+                    return _userFunctions[i];
                 }
             }
 
@@ -294,18 +284,18 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static void RemoveFunction(string input)
         {
-            for (int i = 0; i < userFunctions.Count; i++)
+            for (int i = 0; i < _userFunctions.Count; i++)
             {
-                if (userFunctions[i].GetName() == input)
+                if (_userFunctions[i].GetName() == input)
                 {
-                    userFunctions.RemoveAt(i);
+                    _userFunctions.RemoveAt(i);
                 }
             }
         }
 
         public static List<string>? GetFunctionsInfo()
         {
-            if (userFunctions.Count == 0)
+            if (_userFunctions.Count == 0)
             {
                 return null;
             }
@@ -315,16 +305,9 @@ namespace LogicalExpressionInterpreter.LogicControl
             functionsInfo.Add("\n");
             string line;
 
-            for (int i = 0; i < userFunctions.Count; i++)
+            for (int i = 0; i < _userFunctions.Count; i++)
             {
-                line = i + 1 + ". " + userFunctions[i].GetName() + ": " + userFunctions[i].GetExpression();
-                if (userFunctions[i].GetNestedFunctions().Count != 0)
-                {
-                    line = i + 1 + ". "
-                        + userFunctions[i].GetName() + ": "
-                        + userFunctions[i].GetNestedFunctionsNames()
-                        + userFunctions[i].GetExpression();
-                }
+                line = i + 1 + ". " + _userFunctions[i].GetCombinedName() + ": " + _userFunctions[i].GetExpression();
                 functionsInfo.Add(line);
                 functionsInfo.Add("\n");
             }
@@ -350,8 +333,8 @@ namespace LogicalExpressionInterpreter.LogicControl
         public static void CreateTruthTable(string input, out LogicFunction? functionWithCreatedTable)
         {
             functionWithCreatedTable = null;
-            string[] splitName = Utility.Split(input, '(');
-            string name = splitName[0];
+            string[] splitInput = Utility.Split(input, '(');
+            string name = splitInput[0];
 
             var chosenFunction = ChooseFunction(name);
             if(chosenFunction == null)
@@ -365,15 +348,15 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return;
             }
 
-            string[,] combination = new string[chosenFunction.GetOperands().Count + 1, Utility.IntPower(2, chosenFunction.GetOperands().Count)];
+            string[,] combination = new string[Utility.IntPower(2, chosenFunction.GetOperands().Count), chosenFunction.GetOperands().Count + 1];
             string state = "True";
 
             int variationCount = Utility.IntPower(2, chosenFunction.GetOperands().Count) / 2;
             int repeatCount = 0;
 
-            for (int col = 0; col < combination.GetLength(0) - 1; col++)
+            for (int col = 0; col < combination.GetLength(1) - 1 ; col++)
             {
-                for (int row = 0; row < combination.GetLength(1); row++)
+                for (int row = 0; row < combination.GetLength(0); row++)
                 {
                     if (repeatCount == variationCount)
                     {
@@ -385,7 +368,7 @@ namespace LogicalExpressionInterpreter.LogicControl
 
                         repeatCount = 0;
                     }
-                    combination[col, row] = state;
+                    combination[row, col] = state;
                     repeatCount++;
                 }
                 variationCount /= 2;
@@ -394,17 +377,18 @@ namespace LogicalExpressionInterpreter.LogicControl
             }
 
             string boolValues = "";
-            for (int row = 0; row < combination.GetLength(1); row++)
+            for (int row = 0; row < combination.GetLength(0); row++)
             {
-                for (int col = 0; col < combination.GetLength(0) - 1; col++)
+                for (int col = 0; col < combination.GetLength(1) - 1; col++)
                 {
-                    boolValues += combination[col, row] + " ";
+                    boolValues += combination[row, col] + " ";
                 }
+
                 var tokens = Tokenizer.Tokenize(chosenFunction.GetExpression());
                 var postfixTokens = Parser.ConvertToPostfix(tokens);
 
                 Node root = Tree.CreateTree(postfixTokens, Utility.Split(boolValues, ' '));
-                combination[combination.GetLength(0) - 1, row] = Tree.Evaluate(root).ToString();
+                combination[row, combination.GetLength(1)-1] = Tree.Evaluate(root).ToString();
                 boolValues = "";
             }
 
@@ -421,11 +405,11 @@ namespace LogicalExpressionInterpreter.LogicControl
             Console.Write("Result" + " (" + logicFunction.GetExpression() + ")");
             Console.WriteLine();
 
-            for (int row = 0; row < logicFunction.GetTruthTable().GetLength(1); row++)
+            for (int row = 0; row < logicFunction.GetTruthTable().GetLength(0); row++)
             {
-                for (int col = 0; col < logicFunction.GetTruthTable().GetLength(0); col++)
+                for (int col = 0; col < logicFunction.GetTruthTable().GetLength(1); col++)
                 {
-                    Console.Write(logicFunction.GetTruthTable()[col, row] + "  ");
+                    Console.Write(logicFunction.GetTruthTable()[row, col] + "  ");
                 }
                 Console.WriteLine();
             }
@@ -471,7 +455,8 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static string SearchForFunction(List<string> input, char inputSeparator)
         {
-            string[,] inputTableValues = new string[input.Count, Utility.SplitSize(input[0], inputSeparator)];
+            //C:\Users\User\Desktop\truthTable1.txt
+            string[,] inputTableValues = new string[input.Count, Utility.Split(input[0], inputSeparator).Length];
             int rowCounter = 0;
 
             for (int i = 0; i < input.Count; i++)
@@ -521,12 +506,11 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {"false","false","false","false","false" }
             };
 
-            var foundFunction = Evolution.ConstructBooleanExpression(table);
+            var foundFunction = Evolution.ConstructBooleanExpression(inputTableValues);
             if(foundFunction == "")
             {
                 return "No function was found.";
             }
-            //var result = Parser.ConvertToInfix(foundFunction);
 
             var functions = GetFunctionsWithOperandCount(table.GetLength(1)-1);
             List<LogicFunction> test = new();
@@ -551,14 +535,14 @@ namespace LogicalExpressionInterpreter.LogicControl
                 if (functionIndex != -1)
                 {
                     string functionName = functions[i].GetCombinedName();
-                    return evolutionExpression + "  <--or-->  " + FormatResult(tokens, functionTokens, functionName,functionIndex);
+                    return evolutionExpression + "  <--or-->  " + FormatResult(tokens, functionTokens.Count - 1, functionName, functionIndex);
                 }
             }
 
             return evolutionExpression;
         }
 
-        public static string FormatResult(List<Token> tokens, List<Token> subTokens, string functionName, int index)
+        public static string FormatResult(List<Token> tokens, int subTokensCount, string functionName, int index)
         {
             string result = "";
 
@@ -567,7 +551,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 if (i == index)
                 {
                     result += functionName + " ";
-                    i += subTokens.Count - 1;
+                    i += subTokensCount;
                     continue;
                 }
                 result += tokens[i].Value + " ";
@@ -605,6 +589,15 @@ namespace LogicalExpressionInterpreter.LogicControl
                 }
                 else if (tokens[i].Type == subTokens[subTokensIndex].Type)
                 {
+                    int k = i-1;
+                    if(i-1 < 0)
+                    {
+                        k++;
+                    }
+                    if (tokens[k].Type == Token.TokenType.NOT && counter == 0)
+                    {
+                        continue;
+                    }
                     atSubStartPoint = true;
                     subTokensIndex++;
                     counter++;
