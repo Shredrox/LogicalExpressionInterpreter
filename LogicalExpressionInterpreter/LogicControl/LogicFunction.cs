@@ -11,7 +11,6 @@ namespace LogicalExpressionInterpreter.LogicControl
         private List<Token> Tokens;
         private List<string> Operands;
         private string[,]? TruthTable;
-        private List<LogicFunction> NestedFunctions;
         private DataDictionary<string, bool> ResultCollection;
 
         public LogicFunction(string name, string expression, string combinedName)
@@ -21,7 +20,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             Expression = expression;
             Tokens = Tokenizer.Tokenize(expression);
             Operands = new List<string>();
-            NestedFunctions = new List<LogicFunction>();
             ResultCollection = new DataDictionary<string, bool>();
             SetOperandsFromExpression();
         }
@@ -33,7 +31,6 @@ namespace LogicalExpressionInterpreter.LogicControl
             Expression = expression;
             Tokens = tokens;
             Operands = new List<string>();
-            NestedFunctions = new List<LogicFunction>();
             ResultCollection = new DataDictionary<string, bool>();
             SetOperandsFromExpression();
         }
@@ -72,11 +69,6 @@ namespace LogicalExpressionInterpreter.LogicControl
         public string[,]? GetTruthTable()
         {
             return TruthTable;
-        }
-
-        public void SetNestedFunctions(List<LogicFunction> nestedFunctions)
-        {
-            NestedFunctions = nestedFunctions;
         }
 
         public string GetName()

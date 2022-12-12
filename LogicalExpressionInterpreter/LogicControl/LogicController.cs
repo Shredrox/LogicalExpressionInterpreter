@@ -178,8 +178,8 @@ namespace LogicalExpressionInterpreter.LogicControl
             string nestedFunctionName = "";
 
             bool hasNestedFunction = false;
+            LogicFunction? nestedFunction = null;
             int literalCount = 0;
-            List<LogicFunction> nestedFunctions = new();
 
             for (int i = 0; i < tokens.Count; i++)
             {
@@ -190,12 +190,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                     nestedFunctionName = spl[0];
                     nestedFunctionOperands = Utility.Split(Utility.TrimEnd(spl[1], ')'), ',');
                     literalCount += nestedFunctionOperands.Length;
-                    var nestedFunction = ChooseFunction(nestedFunctionName);
-
-                    if (nestedFunction != null)
-                    {
-                        nestedFunctions.Add(nestedFunction);
-                    }
+                    nestedFunction = ChooseFunction(nestedFunctionName);
                 }
             }
 
@@ -212,14 +207,13 @@ namespace LogicalExpressionInterpreter.LogicControl
                 errorMsg = "Invalid number of operands.";
                 return;
             }
-            else if (hasNestedFunction && nestedFunctions.Count == 0)
+            else if (hasNestedFunction && nestedFunction == null)
             {
                 errorMsg = "Nested Function: " + nestedFunctionName + " doesn't exist.";
                 return;
             }
 
             var newFunction = new LogicFunction(name, expression, inputSplit[0], tokens);
-            newFunction.SetNestedFunctions(nestedFunctions);
             _userFunctions.Add(newFunction);
         }
 
@@ -455,7 +449,6 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static string SearchForFunction(List<string> input, char inputSeparator)
         {
-            //C:\Users\User\Desktop\truthTable1.txt
             string[,] inputTableValues = new string[input.Count, Utility.Split(input[0], inputSeparator).Length];
             int rowCounter = 0;
 
