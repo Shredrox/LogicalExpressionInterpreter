@@ -109,7 +109,6 @@ namespace LogicalExpressionInterpreter.LogicControl
         {
             List<List<string>> newGeneration = new();
 
-            // Generate a random number of mutated expressions
             int numMutations = _random.Next(0, 10);
             for (int i = 0; i < numMutations; i++)
             {
@@ -119,7 +118,6 @@ namespace LogicalExpressionInterpreter.LogicControl
                 newGeneration.Add(expression);
             }
 
-            // Generate a random number of expressions by applying crossover to pairs of expressions
             int numCrossovers = _random.Next(0, 10);
             for (int i = 0; i < numCrossovers; i++)
             {

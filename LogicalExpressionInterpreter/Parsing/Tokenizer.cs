@@ -6,12 +6,12 @@ namespace LogicalExpressionInterpreter.Parsing
     {
         public static List<Token> Tokenize(string input)
         {
-            var split = Utility.Split(input, ' ');
+            var inputSplit = Utility.Split(input, ' ');
             List<Token> tokens = new();
 
-            for (int l = 0; l < split.Length; l++)
+            for (int splitIndex = 0; splitIndex < inputSplit.Length; splitIndex++)
             {
-                var line = split[l];
+                var line = inputSplit[splitIndex];
 
                 for (int i = 0; i < line.Length; i++)
                 {

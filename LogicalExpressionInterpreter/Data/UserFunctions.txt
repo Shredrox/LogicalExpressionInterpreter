@@ -1,5 +1,12 @@
-func1(a,b):a && b
-func2(a,b):!a && !b
-test1(a,b):!a && !b
-test2(a,b):a || b
-test3(a,b,c):a && b && c
+func3(a,b,c,d):(a || func1(b,c)) && d
+func5(a,b,c,d):func1(a,b) && func4(c,d)
+func6(a,b,c,d,e,f,g,h):(((( a || b ) && c ) || ( d && e ) ) && f ) && ( g || h )
+func7(a,b,c):a && (b || c)
+func10(a,b,c):!a && b || c
+func20(a,b):!a || b
+func1(a,b):a || b
+func15(a,b,c,d):a || b || c && d
+func8(a,b,c):func4(a,b) && c
+func14(a,b,c):a || c && b
+func80(a,b):!a && b
+func100(a,b):!a && !b

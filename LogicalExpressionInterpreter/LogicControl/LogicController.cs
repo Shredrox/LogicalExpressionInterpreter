@@ -7,7 +7,6 @@ namespace LogicalExpressionInterpreter.LogicControl
     public static class LogicController
     {
         private static List<LogicFunction> _userFunctions = new();
-        //private static string path = "../../UserFunctions.txt";
         private static string _path = "../../../../LogicalExpressionInterpreter/Data/UserFunctions.txt";
 
         public static void SaveFunctions()
@@ -243,6 +242,12 @@ namespace LogicalExpressionInterpreter.LogicControl
             var postfixTokens = Parser.ConvertToPostfix(tokens);
 
             Node root = Tree.CreateTree(postfixTokens, boolValues);
+
+            if(root == null)
+            {
+                return "Nested function not defined.";
+            }
+
             var result = Tree.Evaluate(root);
 
             chosenFunction.AddResult(Utility.Concat(boolValues), result);
@@ -454,45 +459,13 @@ namespace LogicalExpressionInterpreter.LogicControl
                 rowCounter++;
             }
 
-            string[,] table =
-            {
-                { "false", "false", "false", "false"},
-                { "false", "false", "true", "false"},
-                { "false", "true", "false", "false"},
-                { "false", "true", "true", "false"},
-                { "true", "false", "false", "true"},
-                { "true", "false", "true", "false"},
-                { "true", "true", "false", "false"},
-                { "true", "true", "true", "false"},
-            };
-
-            string[,] table2 =
-            {
-                { "true", "true", "true", "true", "false"},
-                { "true", "true", "true", "false", "false"},
-                { "true", "true", "false", "true", "false"},
-                { "true", "true", "false", "false", "false"},
-                { "true", "false", "true", "true", "false"},
-                { "true", "false", "true", "false", "false"},
-                { "true", "false", "false", "true", "false"},
-                {"true","false","false","false","false" },
-                {"false", "true","true","true","false" },
-                {"false", "true","true","false","false" },
-                {"false","true","false","true","false" },
-                {"false","true","false","false","true" },
-                {"false","false","true","true","false" },
-                {"false", "false","true","false","false" },
-                {"false","false","false","true","false" },
-                {"false","false","false","false","false" }
-            };
-
-            var foundFunction = Evolution.ConstructBooleanExpression(table2);
+            var foundFunction = Evolution.ConstructBooleanExpression(inputTableValues);
             if(foundFunction == "")
             {
                 return "No function was found.";
             }
 
-            var functions = GetFunctionsWithOperandCount(table.GetLength(1) - 1);
+            var functions = GetFunctionsWithOperandCount(inputTableValues.GetLength(1) - 1);
             var finalResult = CombineResult(foundFunction, functions);
 
             return finalResult;

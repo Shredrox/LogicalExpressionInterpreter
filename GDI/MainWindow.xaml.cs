@@ -252,6 +252,12 @@ namespace GDI
 
             Node root = Tree.CreateTree(postfixTokens);
 
+            if(root == null)
+            {
+                MessageBox.Show("Nested function not defined.");
+                return;
+            }
+
             var depth = Tree.TreeDepth(root);
             heightDivide = TreeCanvas.ActualHeight / depth / 2;
             widthDivide = 100;
