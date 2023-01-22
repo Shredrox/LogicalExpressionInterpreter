@@ -8,7 +8,7 @@ namespace LogicalExpressionInterpreter.LogicControl
     {
         private static List<LogicFunction> _userFunctions = new();
         //private static string path = "../../UserFunctions.txt";
-        private static string _path = "../../../../LogicalExpressionInterpreter/bin/UserFunctions.txt";
+        private static string _path = "../../../../LogicalExpressionInterpreter/Data/UserFunctions.txt";
 
         public static void SaveFunctions()
         {
@@ -492,12 +492,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 return "No function was found.";
             }
 
-            var functions = GetFunctionsWithOperandCount(table.GetLength(1)-1);
-            List<LogicFunction> test = new();
-            test.Add(new LogicFunction("test1", "a & b && c", "test1(a,b,c)"));
-            test.Add(new LogicFunction("test2", "a || b", "test2(a,b)"));
-            test.Add(new LogicFunction("test3", "a & b & c", "test3(a,b,c)"));
-
+            var functions = GetFunctionsWithOperandCount(table.GetLength(1) - 1);
             var finalResult = CombineResult(foundFunction, functions);
 
             return finalResult;
@@ -562,19 +557,19 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {
                     if (counter > 0)
                     {
-                        counter--;
+                        counter = 0;
                     }
                     index = -1;
                     subTokensIndex = 0;
                 }
                 else if (tokens[i].Type == subTokens[subTokensIndex].Type)
                 {
-                    int k = i-1;
-                    if(i-1 < 0)
+                    int k = i - 1;
+                    if (i - 1 < 0)
                     {
                         k++;
                     }
-                    if (tokens[k].Type == Token.TokenType.NOT && counter == 0)
+                    if (tokens[k].Type == Token.TokenType.NOT && counter == 0 && i > 0)
                     {
                         continue;
                     }

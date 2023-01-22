@@ -1,0 +1,5 @@
+func1(a,b):a && b
+func2(a,b):!a && !b
+test1(a,b):!a && !b
+test2(a,b):a || b
+test3(a,b,c):a && b && c
