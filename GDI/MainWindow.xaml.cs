@@ -147,6 +147,7 @@ namespace GDI
                     }
                     else
                     {
+                        TextDisplay.Inlines.Clear();
                         TextDisplay.Inlines.Add(result);
                     }
                     

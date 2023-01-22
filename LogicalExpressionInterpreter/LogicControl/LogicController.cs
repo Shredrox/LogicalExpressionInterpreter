@@ -486,7 +486,7 @@ namespace LogicalExpressionInterpreter.LogicControl
                 {"false","false","false","false","false" }
             };
 
-            var foundFunction = Evolution.ConstructBooleanExpression(inputTableValues);
+            var foundFunction = Evolution.ConstructBooleanExpression(table2);
             if(foundFunction == "")
             {
                 return "No function was found.";

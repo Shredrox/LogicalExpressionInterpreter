@@ -14,6 +14,8 @@ namespace LogicalExpressionInterpreter.LogicControl
 
         public static string ConstructBooleanExpression(string[,] truthTable)
         {
+            _stopwatch.Reset();
+            _population.Clear();
             _stopwatch.Start();
             _expressionVariableCount = truthTable.GetLength(1) - 1;
 
