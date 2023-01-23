@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogicalExpressionInterpreter", "LogicalExpressionInterpreter\LogicalExpressionInterpreter.csproj", "{598785E9-86E9-4706-A56C-2AED8AEA8C1A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDI", "GDI\GDI.csproj", "{1AC9E3F8-E3E4-49D9-8198-A00308D23DAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogicalExpressionInterpreter", "LogicalExpressionInterpreter\LogicalExpressionInterpreter.csproj", "{598785E9-86E9-4706-A56C-2AED8AEA8C1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
