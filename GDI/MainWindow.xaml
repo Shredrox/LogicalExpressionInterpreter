@@ -108,6 +108,7 @@
                     Name="TextDisplay"
                     Foreground="#FFF0F01C"
                     Padding="20"
+                    TextWrapping="Wrap"
                     Height="300"
                     Width="360">
                     <TextBlock.Background>
