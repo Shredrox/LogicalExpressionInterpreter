@@ -40,7 +40,7 @@ It also checks the already defined user functions for any matches. <br>
 **Example: FIND (+ a path to a file with a truth table)**
 
 ## ⚡ Expression Tree Visualization // DISPLAY Command
-The DISPLAY command display the binary expression tree of an expression to the screen. <br>
+The DISPLAY command displays the binary expression tree of an expression to the screen. <br>
 **Example: DISPLAY Func6**
 
 ### Other Commands:
