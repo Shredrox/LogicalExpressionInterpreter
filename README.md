@@ -18,7 +18,7 @@ Note: All input must be in the given format.
 The DEFINE command creates and stores a logical function with the input expression for future evaluation.<br>
 **Example: DEFINE func1(a,b): a && !b**
 
-The REMOVE cammand removes the function with the input name.<br>
+The REMOVE command removes the function with the input name.<br>
 **Example: REMOVE func1**
 
 ## ⚡ Solving of boolean expressions // SOLVE Command
